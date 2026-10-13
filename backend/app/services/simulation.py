@@ -4,6 +4,10 @@ from app.models.job import Job
 from app.services.synchronization import synchronized
 from app.algorithms.gpu_selection import GPUSelector
 from datetime import datetime, timezone
+from app.algorithms.placement import RULES, packing_key, alignment_score
+from app.algorithms.demand_fragmentation import measure
+import math
+from app.services.invariants import InvariantError
 
 
 class Simulation:
@@ -18,16 +22,23 @@ class Simulation:
         "SJF",
         "RESOURCE_EFFICIENT",
         "RESOURCE_BALANCED",
-        "PREEMPTIVE"
+        "PREEMPTIVE",
+        "PRIORITY_AGING"
     ]
 
     # ==========================================
     # INITIALIZATION
     # ==========================================
 
-    def __init__(self, clock=None, nodes=None, placement_rule="NORMALIZED"):
-        if placement_rule not in {"NORMALIZED", "FIRST_FIT", "MEMORY_BEST_FIT"}:
+    def __init__(self, clock=None, nodes=None, placement_rule="NORMALIZED", alignment_weight=0.6, stranded_weight=0.3, aging_rate=1.0):
+        if placement_rule not in RULES:
             raise ValueError("Unknown placement rule.")
+        if any(not math.isfinite(value) or not 0 <= value <= 1 for value in (alignment_weight, stranded_weight)) or alignment_weight + stranded_weight > 1:
+            raise ValueError("Alignment weights must be finite, nonnegative, and sum to at most one.")
+        self.alignment_weight, self.stranded_weight = alignment_weight, stranded_weight
+        if type(aging_rate) not in (int,float) or not math.isfinite(aging_rate) or not 0.01 <= aging_rate <= 100:
+            raise ValueError("Aging rate must be between 0.01 and 100 priority units per second.")
+        self.aging_rate = aging_rate
         self.placement_rule = placement_rule
         self.lock = RLock()
         self.clock = clock or (lambda: datetime.now(timezone.utc))
@@ -49,6 +60,7 @@ class Simulation:
         self.gpu = next(iter(self.gpu_selector.get_all_gpus().values()))
 
         self.jobs = []
+        self.max_jobs = 5000
         self.job_sequence = 0
         self.scheduling_policy = "RESOURCE_BALANCED"
         self.preemption_count = 0
@@ -78,12 +90,14 @@ class Simulation:
 
     @synchronized
     def add_job(self, job):
+        if len(self.jobs) >= self.max_jobs:
+            raise ValueError("Simulation job limit reached. Reset the live workspace or use a fresh replay.")
         if any(existing.job_id == job.job_id for existing in self.jobs):
             raise ValueError("Duplicate job ID.")
         if not job.is_queued():
             raise ValueError("Only queued jobs can be submitted.")
         request = self.get_job_resource_request(job)
-        if (not job.name.strip() or job.priority < 1
+        if (not job.name.strip() or len(job.name) > 120 or not 1 <= job.priority <= 10000
                 or request["compute_units"] <= 0 or request["memory"] <= 0
                 or any(not isinstance(amount, int) or amount < 0 for amount in request.values())):
             raise ValueError("Invalid job specification.")
@@ -101,6 +115,20 @@ class Simulation:
         job.wait()
         self.retry_waiting_jobs()
         return job
+
+    @synchronized
+    def reset_live(self):
+        removed = len(self.jobs)
+        nodes = [{"gpu_id": gpu_id, "node_type": gpu.node_type, **gpu.total} for gpu_id,gpu in self.gpu_selector.gpus.items()]
+        replacement = Simulation(clock=self.clock, nodes=nodes, placement_rule=self.placement_rule, alignment_weight=self.alignment_weight, stranded_weight=self.stranded_weight, aging_rate=self.aging_rate)
+        replacement.scheduling_policy = self.scheduling_policy
+        replacement.job_sequence = self.job_sequence
+        replacement.max_jobs = self.max_jobs
+        replacement.state_version, replacement.resource_version = self.state_version + bool(removed), self.resource_version + bool(removed)
+        for key,value in replacement.__dict__.items():
+            if key != "lock": setattr(self,key,value)
+        self.assert_resource_invariants()
+        return {"reset": True, "removed_jobs": removed, "available": self.get_available_resources()}
 
     @synchronized
     def get_jobs(self):
@@ -171,6 +199,13 @@ class Simulation:
             for candidate in eligible:
                 candidate["remaining_memory_after"] = candidate["available_before"]["memory"] - job.memory_required
             selected = min(eligible, key=lambda item: (item["remaining_memory_after"], -item["score"], item["gpu_id"]))
+        elif self.placement_rule == "BEST_FIT_PACKING":
+            for candidate in eligible:
+                candidate["packing_key"] = packing_key(candidate, self.get_job_resource_request(job))
+            selected = min(eligible, key=lambda item: item["packing_key"])
+        elif self.placement_rule == "ALIGNMENT":
+            waiting = [item for item in self.get_waiting_jobs() if item != job]
+            selected = min(eligible, key=lambda item: (-alignment_score(item, self.get_job_resource_request(job), waiting, self.alignment_weight, self.stranded_weight), item["gpu_id"]))
         else:
             selected = min(eligible, key=lambda item: (-item["score"], item["gpu_id"]))
         gpu_id = selected["gpu_id"]
@@ -256,11 +291,21 @@ class Simulation:
             "tie_breaker": "score descending, GPU ID ascending",
             "scoring_version": "normalized-footprint-v2",
             "placement_rule": self.placement_rule,
+            "aging_rate": self.aging_rate if self.scheduling_policy == "PRIORITY_AGING" else None,
         }
         if decision == "ALLOCATED" and self.placement_rule != "NORMALIZED":
             explanation = ("First eligible node in configured order wins." if self.placement_rule == "FIRST_FIT" else "Smallest remaining memory wins among vector-feasible nodes; break ties by score, then GPU ID.")
             record["reasons"] = ["Compute, memory, accelerators and node type all fit.", explanation]
             record["tie_breaker"] = explanation
+            if self.placement_rule == "BEST_FIT_PACKING":
+                record["reasons"] = ["All resource dimensions and node type fit.", "Minimize maximum normalized leftover, then summed leftover, then GPU ID."]
+                record["tie_breaker"] = "maximum leftover, summed leftover, GPU ID"
+            elif self.placement_rule == "ALIGNMENT":
+                record["reasons"] = ["Experimental ablation: cosine alignment minus demand-aware stranded penalty; no topology term."]
+                record["tie_breaker"] = "alignment objective descending, GPU ID"
+        if self.scheduling_policy == "PRIORITY_AGING":
+            record["queue_effective_priority"] = job.priority + self.aging_rate * job.get_waiting_duration_seconds()
+            record["reasons"].append("Queue priority includes accumulated waiting; FIFO breaks ties. Running work is not preempted by this policy.")
         job.decision_history.append(record)
         return record
 
@@ -307,15 +352,15 @@ class Simulation:
                         used[resource] += amount
             for resource, capacity in gpu.total.items():
                 if gpu.available[resource] != capacity - used[resource]:
-                    raise AssertionError(f"Resource conservation failed: {gpu_id}/{resource}")
+                    raise InvariantError(f"Resource conservation failed: {gpu_id}/{resource}")
             if any(not 0 <= gpu.available[key] <= capacity for key, capacity in gpu.total.items()):
-                raise AssertionError("Resources out of bounds.")
+                raise InvariantError("Resources out of bounds.")
         for job in self.jobs:
             allocation = self._allocations.get(job.job_id)
             if job.is_running() != (allocation is not None):
-                raise AssertionError("Running state and resource ownership differ.")
+                raise InvariantError("Running state and resource ownership differ.")
             if job.gpu_id != (allocation[0] if allocation else None):
-                raise AssertionError("GPU assignment and resource ownership differ.")
+                raise InvariantError("GPU assignment and resource ownership differ.")
         return True
 
     @synchronized
@@ -504,6 +549,9 @@ class Simulation:
                 jobs,
                 key=lambda job: job.queue_position
             )
+
+        if policy == "PRIORITY_AGING":
+            return sorted(jobs, key=lambda job: (-(job.priority + self.aging_rate * job.get_waiting_duration_seconds()), job.queue_position))
 
         if policy == "PRIORITY":
             return sorted(
@@ -879,6 +927,7 @@ class Simulation:
         diagnostics = self.get_queue_diagnostics()
         return {
             "deadlock_detected": None, "supported": False, "status": "NOT_APPLICABLE",
+            "mechanism": "HOLD_AND_WAIT_ELIMINATED",
             "reason": "Jobs acquire all resources together; no dependency graph is modeled.",
             **diagnostics,
         }
@@ -1087,6 +1136,7 @@ class Simulation:
     def get_resource_analysis(self):
 
         analysis = {
+            "demand_fragmentation": measure(self),
             "total": self.get_total_resources(),
             "available": self.get_available_resources(),
             "utilization": self.get_utilization(),

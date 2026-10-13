@@ -3,7 +3,7 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.services.challenges import CATALOG, ChallengeRegistry
 
@@ -14,6 +14,9 @@ registry = ChallengeRegistry()
 class CreateChallenge(BaseModel):
     model_config = ConfigDict(extra="forbid")
     challenge_id: Literal["C1", "C2", "C3", "C4", "C5"]
+    reservation_mode: Literal["LEGACY", "NAIVE", "AVOIDANCE", "DETECT_RECOVER"] = "LEGACY"
+    victim_policy: Literal["ABORT_YOUNGEST_IN_CYCLE", "COST_WEIGHTED"] = "ABORT_YOUNGEST_IN_CYCLE"
+    restart_limit: int = Field(default=3, ge=1, le=10)
 
 
 class ControlChallenge(BaseModel):
@@ -36,7 +39,7 @@ def catalog():
 @router.post("/runs", status_code=201)
 def create_run(request: CreateChallenge):
     try:
-        return registry.create(request.challenge_id).snapshot()
+        return registry.create(request.challenge_id, reservation_mode=request.reservation_mode, victim_policy=request.victim_policy, restart_limit=request.restart_limit).snapshot()
     except ValueError as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
 

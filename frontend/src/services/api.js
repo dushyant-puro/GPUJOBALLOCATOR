@@ -19,34 +19,13 @@ export const getJobs = () => {
 };
 
 
-export const createJob = (job) => {
-  return API.post("/jobs/", null, {
-    params: {
-      name: job.name,
-
-      compute_required: Number(
-        job.compute_required
-      ),
-
-      memory_required: Number(
-        job.memory_required
-      ),
-
-      accelerator_a_required: Number(
-        job.accelerator_a_required || 0
-      ),
-
-      accelerator_b_required: Number(
-        job.accelerator_b_required || 0
-      ),
-
-      priority: Number(
-        job.priority || 1
-      ),
-    },
-  });
-};
-
+export const createJob = (job) => API.post("/jobs/", {
+  name: job.name,
+  compute_required: Number(job.compute_required), memory_required: Number(job.memory_required),
+  accelerator_a_required: Number(job.accelerator_a_required ?? 0), accelerator_b_required: Number(job.accelerator_b_required ?? 0),
+  priority: Number(job.priority ?? 1), required_node_type: job.required_node_type || null,
+});
+export const resetWorkspace = () => API.post("/jobs/reset");
 
 export const completeJob = (jobId) => {
   return API.post(
@@ -262,7 +241,15 @@ export const getBenchmark = (id) => API.get(`/benchmarks/${id}`);
 export const benchmarkExportUrl = (id, format) => `${API.defaults.baseURL}/benchmarks/${id}/export/${format}`;
 
 export const getChallengeCatalog = () => API.get("/challenges/catalog");
-export const createChallengeRun = (challengeId) => API.post("/challenges/runs", { challenge_id: challengeId });
+export const createChallengeRun = (challengeId, options = {}) => API.post("/challenges/runs", { challenge_id: challengeId, ...options });
 export const getChallengeRun = (id) => API.get(`/challenges/runs/${id}`);
 export const controlChallengeRun = (id, action) => API.post(`/challenges/runs/${id}/control`, { action });
 export const challengeExportUrl = (id) => `${API.defaults.baseURL}/challenges/runs/${id}/export`;
+
+API.interceptors.request.use((config) => {
+  try {
+    const token = sessionStorage.getItem("gpu-api-token");
+    if (token && !["get","head","options"].includes((config.method || "get").toLowerCase())) config.headers.Authorization = `Bearer ${token}`;
+  } catch { /* Unset token keeps the local demo unchanged. */ }
+  return config;
+});

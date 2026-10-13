@@ -1,5 +1,7 @@
 """Separate partial-acquisition simulator: unit resources and one pending request per process."""
 from copy import deepcopy
+from app.services.invariants import require
+from app.algorithms.deadlock import DeadlockDetector
 
 
 class ReservationSimulation:
@@ -47,6 +49,11 @@ class ReservationSimulation:
                 for task in self.processes.values() if task["waiting_for"] and self.owners[task["waiting_for"]]]
 
     def cycles(self):
+        detector = DeadlockDetector()
+        for edge in self.edges():
+            detector.add_edge(edge["from"], edge["to"])
+        if not detector.has_cycle():
+            return []
         links = {edge["from"]: edge["to"] for edge in self.edges()}
         found, seen = [], set()
         for start in links:
@@ -100,13 +107,13 @@ class ReservationSimulation:
 
     def assert_invariants(self):
         for resource, owner in self.owners.items():
-            assert owner is None or resource in self.processes[owner]["held"]
+            require(owner is None or (owner in self.processes and resource in self.processes[owner]["held"]), "Reservation ownership mismatch")
         for task in self.processes.values():
-            assert len(task["held"]) == len(set(task["held"]))
-            assert all(self.owners[resource] == task["id"] for resource in task["held"])
-            assert (task["status"] == "WAITING") == (task["waiting_for"] is not None)
-            assert task["waiting_for"] is None or self.owners[task["waiting_for"]] not in (None, task["id"])
-            assert task["status"] not in {"ABORTED", "COMPLETED"} or (not task["held"] and task["waiting_for"] is None)
+            require(len(task["held"]) == len(set(task["held"])), "Reservation accounting/state mismatch")
+            require(all(self.owners[resource] == task["id"] for resource in task["held"]), "Reservation accounting/state mismatch")
+            require((task["status"] == "WAITING") == (task["waiting_for"] is not None), "Reservation accounting/state mismatch")
+            require(task["waiting_for"] is None or self.owners[task["waiting_for"]] not in (None, task["id"]), "Reservation accounting/state mismatch")
+            require(task["status"] not in {"ABORTED", "COMPLETED"} or (not task["held"] and task["waiting_for"] is None), "Reservation accounting/state mismatch")
         return True
 
     def snapshot(self):

@@ -1,0 +1,208 @@
+{
+  "FRAGMENTATION_TRAP": {
+    "trace_hash": "a77aeb272c93f1fc5c322084ed48f60e80901ae18b28bbec2f8248a6c54289ca",
+    "seed": 42,
+    "trials": [
+      {
+        "variant": "FCFS/NORMALIZED",
+        "metrics": {
+          "status": "COMPLETED",
+          "observation_seconds": 28.0,
+          "timeout_seconds": 10000,
+          "total_jobs": 4,
+          "completed_jobs": 4,
+          "arrived_jobs": 4,
+          "unfinished_jobs": 0,
+          "scheduled_jobs": 0,
+          "infeasible_arrived_jobs": 0,
+          "feasible_arrived_jobs": 4,
+          "starved_jobs": 0,
+          "makespan_seconds": 28.0,
+          "mean_wait_seconds": 4.75,
+          "p95_wait_seconds": 19.0,
+          "mean_slowdown": 1.59375,
+          "throughput_per_minute": 8.571429,
+          "compute_utilization_percent": 27.380952,
+          "memory_utilization_percent": 27.380952,
+          "utilization_by_resource": {
+            "compute_units": 27.380952380952383,
+            "memory": 27.380952380952383,
+            "accelerator_a": 0.0,
+            "accelerator_b": 0.0
+          },
+          "resource_imbalance_percent": 27.380952,
+          "starvation_rate_percent": 0.0,
+          "preemptions": 0,
+          "modeled_preemption_overhead_seconds": 0.0,
+          "completion_rate_percent": 100.0,
+          "external_fragmentation_percent": 64.285714,
+          "stranded_capacity_percent": 67.857143,
+          "fragmentation_blocked_jobs_mean": 0.678571,
+          "max_wait_seconds": 19.0,
+          "slowdown_jain_index": 0.706026,
+          "allocation_attempts": 5,
+          "successful_allocations": 4
+        }
+      },
+      {
+        "variant": "FCFS/BEST_FIT_PACKING",
+        "metrics": {
+          "status": "COMPLETED",
+          "observation_seconds": 20.0,
+          "timeout_seconds": 10000,
+          "total_jobs": 4,
+          "completed_jobs": 4,
+          "arrived_jobs": 4,
+          "unfinished_jobs": 0,
+          "scheduled_jobs": 0,
+          "infeasible_arrived_jobs": 0,
+          "feasible_arrived_jobs": 4,
+          "starved_jobs": 0,
+          "makespan_seconds": 20.0,
+          "mean_wait_seconds": 0.0,
+          "p95_wait_seconds": 0.0,
+          "mean_slowdown": 1.0,
+          "throughput_per_minute": 12.0,
+          "compute_utilization_percent": 38.333333,
+          "memory_utilization_percent": 38.333333,
+          "utilization_by_resource": {
+            "compute_units": 38.333333333333336,
+            "memory": 38.333333333333336,
+            "accelerator_a": 0.0,
+            "accelerator_b": 0.0
+          },
+          "resource_imbalance_percent": 38.333333,
+          "starvation_rate_percent": 0.0,
+          "preemptions": 0,
+          "modeled_preemption_overhead_seconds": 0.0,
+          "completion_rate_percent": 100.0,
+          "external_fragmentation_percent": 54.0,
+          "stranded_capacity_percent": 0.0,
+          "fragmentation_blocked_jobs_mean": 0.0,
+          "max_wait_seconds": 0.0,
+          "slowdown_jain_index": 1.0,
+          "allocation_attempts": 4,
+          "successful_allocations": 4
+        }
+      }
+    ]
+  },
+  "FAIRNESS_STREAM": {
+    "trace_hash": "e24d5499c4e550c9cd03e7873be7bc76cb1fcddcc91d84658127e4278ce523e4",
+    "seed": 42,
+    "trials": [
+      {
+        "variant": "PRIORITY",
+        "metrics": {
+          "status": "COMPLETED",
+          "observation_seconds": 320.0,
+          "timeout_seconds": 10000,
+          "total_jobs": 94,
+          "completed_jobs": 94,
+          "arrived_jobs": 94,
+          "unfinished_jobs": 0,
+          "scheduled_jobs": 0,
+          "infeasible_arrived_jobs": 0,
+          "feasible_arrived_jobs": 94,
+          "starved_jobs": 1,
+          "makespan_seconds": 320.0,
+          "mean_wait_seconds": 3.297872,
+          "p95_wait_seconds": 0.0,
+          "mean_slowdown": 1.329787,
+          "throughput_per_minute": 17.625,
+          "compute_utilization_percent": 97.916667,
+          "memory_utilization_percent": 97.916667,
+          "utilization_by_resource": {
+            "compute_units": 97.91666666666666,
+            "memory": 97.91666666666666,
+            "accelerator_a": 97.91666666666666,
+            "accelerator_b": 97.91666666666666
+          },
+          "resource_imbalance_percent": 0.0,
+          "starvation_rate_percent": 1.06383,
+          "preemptions": 0,
+          "modeled_preemption_overhead_seconds": 0.0,
+          "completion_rate_percent": 100.0,
+          "external_fragmentation_percent": 1.5625,
+          "stranded_capacity_percent": 0.0,
+          "fragmentation_blocked_jobs_mean": 0.0,
+          "max_wait_seconds": 310.0,
+          "slowdown_jain_index": 0.148812,
+          "allocation_attempts": 125,
+          "successful_allocations": 94
+        }
+      },
+      {
+        "variant": "PRIORITY_AGING",
+        "metrics": {
+          "status": "COMPLETED",
+          "observation_seconds": 320.0,
+          "timeout_seconds": 10000,
+          "total_jobs": 94,
+          "completed_jobs": 94,
+          "arrived_jobs": 94,
+          "unfinished_jobs": 0,
+          "scheduled_jobs": 0,
+          "infeasible_arrived_jobs": 0,
+          "feasible_arrived_jobs": 94,
+          "starved_jobs": 0,
+          "makespan_seconds": 320.0,
+          "mean_wait_seconds": 3.297872,
+          "p95_wait_seconds": 10.0,
+          "mean_slowdown": 1.329787,
+          "throughput_per_minute": 17.625,
+          "compute_utilization_percent": 97.916667,
+          "memory_utilization_percent": 97.916667,
+          "utilization_by_resource": {
+            "compute_units": 97.91666666666666,
+            "memory": 97.91666666666666,
+            "accelerator_a": 97.91666666666666,
+            "accelerator_b": 97.91666666666666
+          },
+          "resource_imbalance_percent": 0.0,
+          "starvation_rate_percent": 0.0,
+          "preemptions": 0,
+          "modeled_preemption_overhead_seconds": 0.0,
+          "completion_rate_percent": 100.0,
+          "external_fragmentation_percent": 1.5625,
+          "stranded_capacity_percent": 0.0,
+          "fragmentation_blocked_jobs_mean": 0.0,
+          "max_wait_seconds": 10.0,
+          "slowdown_jain_index": 0.888895,
+          "allocation_attempts": 125,
+          "successful_allocations": 94
+        }
+      }
+    ]
+  },
+  "reservation_modes": {
+    "NAIVE": {
+      "deadlock": true,
+      "completed": 0,
+      "restarts": 0,
+      "available": {
+        "Compute": 0,
+        "Memory": 0
+      }
+    },
+    "AVOIDANCE": {
+      "deadlock": false,
+      "completed": 2,
+      "restarts": 0,
+      "available": {
+        "Compute": 2,
+        "Memory": 2
+      }
+    },
+    "DETECT_RECOVER": {
+      "deadlock": false,
+      "completed": 2,
+      "restarts": 1,
+      "available": {
+        "Compute": 2,
+        "Memory": 2
+      }
+    }
+  },
+  "source_fingerprint": "4cc64d7c534209c973e33548cce62a6c4761125665e9366959f0717a7e29d9e0"
+}

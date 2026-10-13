@@ -101,7 +101,7 @@ function DemoStudio({ connected }) {
       </div>
       <ClusterScene scene={scene} live={Boolean(run)} onInspect={setInspectedId} />
     </section>
-    <div className="studio-stat-strip">{[["03", "Simulated GPUs"], ["06", "Scheduling policies"], ["04", "Jobs in this scenario"], ["JSON / CSV", "Exportable evidence"]].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
+    <div className="studio-stat-strip">{[["03", "Simulated GPUs"], ["07", "Scheduling policies"], ["04", "Jobs in this scenario"], ["JSON / CSV", "Exportable evidence"]].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
     <section id="guided-workload" className="studio-stage"><div className="studio-section-heading"><div><div className="studio-eyebrow">01 / FOLLOW THE WORKLOAD</div><h2>An urgent arrival changes the queue.</h2></div><span className={`studio-pill ${run ? "live" : ""}`}><span />{run ? "Live local replay" : "Prepared example"}</span></div><p className="studio-stage-intro">Step through a real simulation. Every colored interval and explanation comes from the engine.</p>
       {error && <div className="studio-error" role="alert">{error}</div>}
       <div className="studio-chapters">{chapters.map((item, index) => <button type="button" key={item.time} disabled={busy || connected === false} className={chapter === index ? "current" : ""} onClick={() => jump(index)} aria-label={`${item.title} at ${item.time} seconds`}><span>{chapter != null && index < chapter ? <Check size={14} /> : String(index + 1).padStart(2, "0")}</span><div><strong>{item.title}</strong><small>t = {item.time}s</small></div></button>)}</div>

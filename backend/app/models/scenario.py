@@ -8,7 +8,7 @@ class TraceJob(BaseModel):
     memory_required: StrictInt = Field(gt=0)
     accelerator_a_required: StrictInt = Field(default=0, ge=0)
     accelerator_b_required: StrictInt = Field(default=0, ge=0)
-    priority: StrictInt = Field(default=1, ge=1)
+    priority: StrictInt = Field(default=1, ge=1, le=10000)
     required_node_type: str | None = Field(default=None, min_length=1, max_length=40)
     arrival_seconds: float = Field(ge=0, le=604800)
     duration_seconds: float = Field(ge=0.001, le=86400)

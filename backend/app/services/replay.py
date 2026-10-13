@@ -6,6 +6,7 @@ import random
 from threading import RLock
 from time import monotonic
 from uuid import uuid4
+from fractions import Fraction
 
 from app.models.job import Job
 from app.services.simulation import Simulation
@@ -16,6 +17,8 @@ MAX_REPLAY_JOBS = 200
 
 EPOCH = datetime(2000, 1, 1, tzinfo=timezone.utc)
 PRESETS = [
+    {"id": "FAIRNESS_STREAM", "name": "Priority starvation stream", "description": "Balanced full-GPU arrivals every 10 seconds; a low-priority job competes with 31 high-priority batches."},
+    {"id": "FRAGMENTATION_TRAP", "name": "Fragmentation trap", "description": "Three small jobs strand a whole-GPU request under NORMALIZED placement."},
     {"id": "MIXED", "name": "Mixed arrivals", "description": "Seeded demand, staggered arrivals and varied runtimes."},
     {"id": "BURST", "name": "Burst traffic", "description": "A seeded batch arrives together and drains automatically."},
     {"id": "PREEMPTION", "name": "Urgent interruption", "description": "An urgent job interrupts a full GPU under PREEMPTIVE."},
@@ -46,6 +49,11 @@ def make_trace(preset="MIXED", seed=42, count=30):
         specs = WorkloadGenerator(seed=seed).generate(count=count, pattern="MIXED", name_prefix="Replay job")
         return [{**spec, "arrival_seconds": index * 2 if preset == "MIXED" else 0,
                  "duration_seconds": rng.randint(5, 25)} for index, spec in enumerate(specs)]
+    if preset == "FAIRNESS_STREAM":
+        spec = dict(compute_required=8,memory_required=16,accelerator_a_required=4,accelerator_b_required=2,duration_seconds=10)
+        return [{**spec,"name":"Low priority","priority":1,"arrival_seconds":0}] + [{**spec,"name":f"High {batch}-{index}","priority":5,"arrival_seconds":batch*10} for batch in range(31) for index in range(3)]
+    if preset == "FRAGMENTATION_TRAP":
+        return [{"name": f"Small {i+1}", "compute_required": 2, "memory_required": 4, "priority": 1, "arrival_seconds": 0, "duration_seconds": 20} for i in range(3)] + [{"name": "Whole GPU", "compute_required": 8, "memory_required": 16, "priority": 1, "arrival_seconds": 1, "duration_seconds": 8}]
     full = dict(compute_required=8, memory_required=16, accelerator_a_required=4, accelerator_b_required=2)
     trace = [{**full, "name": f"Long job {index + 1}", "priority": 1,
               "arrival_seconds": 0, "duration_seconds": 20} for index in range(3)]
@@ -59,7 +67,7 @@ def make_trace(preset="MIXED", seed=42, count=30):
 
 
 class ReplayRun:
-    def __init__(self, trace, policy="RESOURCE_BALANCED", name="Replay", wall_clock=monotonic):
+    def __init__(self, trace, policy="RESOURCE_BALANCED", name="Replay", wall_clock=monotonic, placement_rule="NORMALIZED", alignment_weight=0.6, stranded_weight=0.3, aging_rate=1.0):
         if policy not in Simulation.SUPPORTED_POLICIES:
             raise ValueError("Unknown scheduling policy.")
         if not trace or len(trace) > MAX_REPLAY_JOBS:
@@ -68,6 +76,9 @@ class ReplayRun:
         self.run_id = str(uuid4())
         self.name = name
         self.policy = policy
+        self.placement_rule = placement_rule
+        self.aging_rate = aging_rate
+        self.alignment_weight, self.stranded_weight = alignment_weight, stranded_weight
         self.wall_clock = wall_clock
         self.speed = 1.0
         self._anchor = None
@@ -95,7 +106,7 @@ class ReplayRun:
 
     def _reset(self):
         self.clock = VirtualClock()
-        self.simulation = Simulation(clock=self.clock)
+        self.simulation = Simulation(clock=self.clock, placement_rule=self.placement_rule, alignment_weight=self.alignment_weight, stranded_weight=self.stranded_weight, aging_rate=self.aging_rate)
         self.simulation.scheduling_policy = self.policy
         capacities = self.simulation.get_total_resources()
         self.resource_time = {key: 0.0 for key in capacities}
@@ -103,6 +114,8 @@ class ReplayRun:
         self._imbalance_scale = math.lcm(*(capacity for capacity in capacities.values() if capacity))
         self._imbalance_work = 0
         self.imbalance_time = 0.0
+        self.fragmentation_time = dict(external_fragmentation=0.0, stranded_capacity=0.0, blocked_by_fragmentation=0.0)
+        self._fragmentation_work = {key: Fraction(0) for key in self.fragmentation_time}
         self.cursor = 0
         self._last_decision_id = 0
         self.events = []
@@ -166,6 +179,11 @@ class ReplayRun:
             scaled_usage.append(used * (self._imbalance_scale // capacity) if capacity else 0)
         self._imbalance_work += (max(scaled_usage) - min(scaled_usage)) * microseconds
         self.imbalance_time = self._imbalance_work / (self._imbalance_scale * 1_000_000)
+        from app.algorithms.demand_fragmentation import measure
+        fragmentation = measure(self.simulation)
+        for key in self.fragmentation_time:
+            self._fragmentation_work[key] += Fraction(fragmentation[key]).limit_denominator(1_000_000_000) * microseconds
+            self.fragmentation_time[key] = float(self._fragmentation_work[key] / 1_000_000)
         self.clock.advance_to(target)
 
     def _advance(self, target):
@@ -246,13 +264,13 @@ class ReplayRun:
         elapsed = self.clock.seconds
         completed = len(self.simulation.get_completed_jobs())
         return {
-            "run_id": self.run_id, "name": self.name, "policy": self.policy,
+            "run_id": self.run_id, "name": self.name, "policy": self.policy, "placement_rule": self.placement_rule,
             "status": self.status, "speed": self.speed, "time_seconds": elapsed,
             "next_event_seconds": self._next_event(), "epoch": EPOCH.isoformat(),
             "jobs": jobs, "pending_jobs": pending, "total_jobs": len(self.trace),
             "resources": self.simulation.get_resource_analysis(), "events": deepcopy(self.events[-200:]),
             "event_count": len(self.events),
-            "time_integrals": {"resource_seconds": deepcopy(self.resource_time), "imbalance_seconds": self.imbalance_time},
+            "time_integrals": {"resource_seconds": deepcopy(self.resource_time), "imbalance_seconds": self.imbalance_time, "fragmentation_seconds": deepcopy(self.fragmentation_time)},
             "metrics": {"completed": completed, "running": len(self.simulation.get_running_jobs()),
                         "waiting": len(self.simulation.get_waiting_jobs()), "scheduled": len(pending),
                         "throughput_per_simulated_minute": round(completed * 60 / elapsed, 4) if elapsed else 0,
@@ -270,11 +288,11 @@ class ReplayRegistry:
         self.runs = {}
         self.limit = limit
 
-    def create(self, trace, policy, name):
+    def create(self, trace, policy, name, **options):
         with self.lock:
             if len(self.runs) >= self.limit:
                 raise ValueError("Replay session limit reached. Delete a run before creating another.")
-            run = ReplayRun(trace, policy=policy, name=name)
+            run = ReplayRun(trace, policy=policy, name=name, **options)
             self.runs[run.run_id] = run
             return run
 

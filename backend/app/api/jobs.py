@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body, Request
 
+from app.models.live_job import LiveJobInput
 from app.services.synchronization import simulation_endpoint
 from app.services.simulation import Simulation
 from app.services.workload_generator import WorkloadGenerator
@@ -17,6 +18,17 @@ workload_generator = WorkloadGenerator()
 stress_tester = StressTester()
 
 
+def ensure_capacity(count):
+    if len(simulation.jobs) + count > simulation.max_jobs:
+        raise HTTPException(status_code=409, detail="Live workspace job limit reached. Reset before adding more jobs.")
+
+
+@router.post("/reset")
+@simulation_endpoint(simulation)
+def reset_workspace():
+    return simulation.reset_live()
+
+
 def serialize_job(job):
     """Serialize a job and include the scheduler's allocation explanation."""
     data = job.to_dict()
@@ -29,14 +41,28 @@ def serialize_job(job):
 @router.post("/")
 @simulation_endpoint(simulation)
 def create_job(
-    name: str,
-    compute_required: int,
-    memory_required: int,
+    request: Request,
+    name: str | None = None,
+    compute_required: int | None = None,
+    memory_required: int | None = None,
     accelerator_a_required: int = 0,
     accelerator_b_required: int = 0,
     priority: int = 1,
-    required_node_type: str | None = None
+    required_node_type: str | None = None,
+    body: LiveJobInput | None = Body(default=None)
 ):
+    if body is not None:
+        if request.query_params:
+            raise HTTPException(status_code=400, detail="Use either JSON or legacy query fields, not both.")
+        spec = body.model_dump()
+        name, compute_required, memory_required = spec["name"], spec["compute_required"], spec["memory_required"]
+        accelerator_a_required, accelerator_b_required = spec["accelerator_a_required"], spec["accelerator_b_required"]
+        priority, required_node_type = spec["priority"], spec["required_node_type"]
+    if name is None or compute_required is None or memory_required is None:
+        raise HTTPException(status_code=422, detail="Name, compute and memory are required.")
+    if len(name) > 120 or priority > 10000 or any(n > 1_000_000_000 for n in (compute_required,memory_required,accelerator_a_required,accelerator_b_required)):
+        raise HTTPException(status_code=400, detail="Job fields exceed the supported bounds.")
+    ensure_capacity(1)
     if not name or not name.strip():
         raise HTTPException(
             status_code=400,
@@ -141,6 +167,7 @@ def generate_workload(
             }
         )
 
+    ensure_capacity(count)
     generator = WorkloadGenerator(seed=seed)
     specs = generator.generate(
         count=count,
@@ -196,6 +223,7 @@ def run_stress_test(
             }
         )
 
+    ensure_capacity(count)
     generator = WorkloadGenerator(seed=seed)
     specs = generator.generate(
         count=count,

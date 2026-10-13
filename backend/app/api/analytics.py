@@ -29,6 +29,7 @@ def resource_analysis():
     # Use the Simulation's existing analytics methods
     # for the dashboard-level metrics.
     return {
+        "demand_fragmentation": simulation.get_resource_analysis()["demand_fragmentation"],
         "resource_imbalance": simulation.get_overall_fragmentation(),
         "metric_definitions": simulation.get_metric_definitions(),
         "queue_diagnostics": simulation.get_queue_diagnostics(),

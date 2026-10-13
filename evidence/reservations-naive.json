@@ -1,0 +1,2884 @@
+{
+  "schema_version": 1,
+  "engine_version": "organizer-challenges-v1",
+  "run": {
+    "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+    "definition": {
+      "id": "C4",
+      "code": "KO-03-C4",
+      "title": "Circular wait recovery",
+      "difficulty": "Hard",
+      "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+      "nodes": [],
+      "steps": [
+        {
+          "action": "ensure",
+          "process": "A",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "A requests 2 Compute"
+        },
+        {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Memory": 2
+          },
+          "label": "B requests 2 Memory"
+        },
+        {
+          "action": "ensure",
+          "process": "A",
+          "amounts": {
+            "Memory": 2
+          },
+          "label": "A requests 2 Memory"
+        },
+        {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "B requests 2 Compute"
+        },
+        {
+          "action": "recover",
+          "label": "Evaluate recovery"
+        },
+        {
+          "action": "finish",
+          "process": "A",
+          "label": "Complete A if its claim is held"
+        },
+        {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "Retry B's Compute claim"
+        },
+        {
+          "action": "finish",
+          "process": "B",
+          "label": "Complete B if its claim is held"
+        }
+      ],
+      "assumptions": [
+        "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+        "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+        "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+      ]
+    },
+    "step_index": 8,
+    "complete": true,
+    "engines": [],
+    "reservations": {
+      "multi_unit": true,
+      "mode": "NAIVE",
+      "resources": {
+        "Compute": "A (2)",
+        "Memory": "B (2)"
+      },
+      "resource_vectors": {
+        "total": {
+          "Compute": 2,
+          "Memory": 2
+        },
+        "available": {
+          "Compute": 0,
+          "Memory": 0
+        }
+      },
+      "processes": [
+        {
+          "id": "A",
+          "order": 0,
+          "maximum": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "allocation": {
+            "Compute": 2,
+            "Memory": 0
+          },
+          "pending": {
+            "Compute": 0,
+            "Memory": 2
+          },
+          "status": "WAITING",
+          "restarts": 0,
+          "work_done": 0,
+          "held": [
+            "Compute\u00d72"
+          ]
+        },
+        {
+          "id": "B",
+          "order": 1,
+          "maximum": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "allocation": {
+            "Compute": 0,
+            "Memory": 2
+          },
+          "pending": {
+            "Compute": 2,
+            "Memory": 0
+          },
+          "status": "WAITING",
+          "restarts": 0,
+          "work_done": 0,
+          "held": [
+            "Memory\u00d72"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "A",
+          "to": "B",
+          "resource": "Memory"
+        },
+        {
+          "from": "B",
+          "to": "A",
+          "resource": "Compute"
+        }
+      ],
+      "cycles": [],
+      "deadlocked_processes": [
+        "A",
+        "B"
+      ],
+      "deadlock": true,
+      "safe_sequence": null,
+      "events": [
+        {
+          "sequence": 1,
+          "action": "GRANTED",
+          "process": "A",
+          "request": {
+            "Compute": 2,
+            "Memory": 0
+          },
+          "reason": "AVAILABLE"
+        },
+        {
+          "sequence": 2,
+          "action": "GRANTED",
+          "process": "B",
+          "request": {
+            "Compute": 0,
+            "Memory": 2
+          },
+          "reason": "AVAILABLE"
+        },
+        {
+          "sequence": 3,
+          "action": "WAITING",
+          "process": "A",
+          "request": {
+            "Compute": 0,
+            "Memory": 2
+          },
+          "reason": "UNAVAILABLE"
+        },
+        {
+          "sequence": 4,
+          "action": "WAITING",
+          "process": "B",
+          "request": {
+            "Compute": 2,
+            "Memory": 0
+          },
+          "reason": "UNAVAILABLE"
+        },
+        {
+          "sequence": 5,
+          "action": "NO_RECOVERY",
+          "process": null,
+          "reason": "No recovery-enabled deadlock"
+        },
+        {
+          "sequence": 6,
+          "action": "BLOCKED_NOOP",
+          "process": "A"
+        },
+        {
+          "sequence": 7,
+          "action": "WAITING_NOOP",
+          "process": "B",
+          "reason": "Existing vector request remains pending"
+        },
+        {
+          "sequence": 8,
+          "action": "BLOCKED_NOOP",
+          "process": "B"
+        }
+      ],
+      "invariants_ok": true,
+      "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+    },
+    "rejections": [],
+    "events": [
+      {
+        "sequence": 1,
+        "operation": {
+          "action": "ensure",
+          "process": "A",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "A requests 2 Compute"
+        },
+        "outcomes": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "operation": {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Memory": 2
+          },
+          "label": "B requests 2 Memory"
+        },
+        "outcomes": [
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "operation": {
+          "action": "ensure",
+          "process": "A",
+          "amounts": {
+            "Memory": 2
+          },
+          "label": "A requests 2 Memory"
+        },
+        "outcomes": [
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "operation": {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "B requests 2 Compute"
+        },
+        "outcomes": [
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          }
+        ]
+      },
+      {
+        "sequence": 5,
+        "operation": {
+          "action": "recover",
+          "label": "Evaluate recovery"
+        },
+        "outcomes": [
+          {
+            "sequence": 5,
+            "action": "NO_RECOVERY",
+            "process": null,
+            "reason": "No recovery-enabled deadlock"
+          }
+        ]
+      },
+      {
+        "sequence": 6,
+        "operation": {
+          "action": "finish",
+          "process": "A",
+          "label": "Complete A if its claim is held"
+        },
+        "outcomes": [
+          {
+            "sequence": 6,
+            "action": "BLOCKED_NOOP",
+            "process": "A"
+          }
+        ]
+      },
+      {
+        "sequence": 7,
+        "operation": {
+          "action": "ensure",
+          "process": "B",
+          "amounts": {
+            "Compute": 2
+          },
+          "label": "Retry B's Compute claim"
+        },
+        "outcomes": [
+          {
+            "sequence": 7,
+            "action": "WAITING_NOOP",
+            "process": "B",
+            "reason": "Existing vector request remains pending"
+          }
+        ]
+      },
+      {
+        "sequence": 8,
+        "operation": {
+          "action": "finish",
+          "process": "B",
+          "label": "Complete B if its claim is held"
+        },
+        "outcomes": [
+          {
+            "sequence": 8,
+            "action": "BLOCKED_NOOP",
+            "process": "B"
+          }
+        ]
+      }
+    ],
+    "invariants_ok": true
+  },
+  "snapshots": [
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 0,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": null,
+          "Memory": null
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 2,
+            "Memory": 2
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 0
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": []
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 0
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": []
+          }
+        ],
+        "edges": [],
+        "cycles": [],
+        "deadlocked_processes": [],
+        "deadlock": false,
+        "safe_sequence": [
+          "A",
+          "B"
+        ],
+        "events": [],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 1,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": null
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 2
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 0
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": []
+          }
+        ],
+        "edges": [],
+        "cycles": [],
+        "deadlocked_processes": [],
+        "deadlock": false,
+        "safe_sequence": [
+          "A",
+          "B"
+        ],
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 2,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [],
+        "cycles": [],
+        "deadlocked_processes": [],
+        "deadlock": false,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 3,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": null,
+            "status": "RUNNING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [],
+        "deadlock": false,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 4,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "resource": "Compute"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [
+          "A",
+          "B"
+        ],
+        "deadlock": true,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 4,
+              "action": "WAITING",
+              "process": "B",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 5,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "resource": "Compute"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [
+          "A",
+          "B"
+        ],
+        "deadlock": true,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 5,
+            "action": "NO_RECOVERY",
+            "process": null,
+            "reason": "No recovery-enabled deadlock"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 4,
+              "action": "WAITING",
+              "process": "B",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "operation": {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          "outcomes": [
+            {
+              "sequence": 5,
+              "action": "NO_RECOVERY",
+              "process": null,
+              "reason": "No recovery-enabled deadlock"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 6,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "resource": "Compute"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [
+          "A",
+          "B"
+        ],
+        "deadlock": true,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 5,
+            "action": "NO_RECOVERY",
+            "process": null,
+            "reason": "No recovery-enabled deadlock"
+          },
+          {
+            "sequence": 6,
+            "action": "BLOCKED_NOOP",
+            "process": "A"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 4,
+              "action": "WAITING",
+              "process": "B",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "operation": {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          "outcomes": [
+            {
+              "sequence": 5,
+              "action": "NO_RECOVERY",
+              "process": null,
+              "reason": "No recovery-enabled deadlock"
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "operation": {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          "outcomes": [
+            {
+              "sequence": 6,
+              "action": "BLOCKED_NOOP",
+              "process": "A"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 7,
+      "complete": false,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "resource": "Compute"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [
+          "A",
+          "B"
+        ],
+        "deadlock": true,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 5,
+            "action": "NO_RECOVERY",
+            "process": null,
+            "reason": "No recovery-enabled deadlock"
+          },
+          {
+            "sequence": 6,
+            "action": "BLOCKED_NOOP",
+            "process": "A"
+          },
+          {
+            "sequence": 7,
+            "action": "WAITING_NOOP",
+            "process": "B",
+            "reason": "Existing vector request remains pending"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 4,
+              "action": "WAITING",
+              "process": "B",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "operation": {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          "outcomes": [
+            {
+              "sequence": 5,
+              "action": "NO_RECOVERY",
+              "process": null,
+              "reason": "No recovery-enabled deadlock"
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "operation": {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          "outcomes": [
+            {
+              "sequence": 6,
+              "action": "BLOCKED_NOOP",
+              "process": "A"
+            }
+          ]
+        },
+        {
+          "sequence": 7,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          "outcomes": [
+            {
+              "sequence": 7,
+              "action": "WAITING_NOOP",
+              "process": "B",
+              "reason": "Existing vector request remains pending"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    },
+    {
+      "run_id": "0bcec610-4d34-4d0e-8b5e-15c09b42a2a7",
+      "definition": {
+        "id": "C4",
+        "code": "KO-03-C4",
+        "title": "Circular wait recovery",
+        "difficulty": "Hard",
+        "mechanism": "Multi-unit mode NAIVE: total (2 Compute, 2 Memory); A and B each declare maximum (2,2).",
+        "nodes": [],
+        "steps": [
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          }
+        ],
+        "assumptions": [
+          "Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.",
+          "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.",
+          "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."
+        ]
+      },
+      "step_index": 8,
+      "complete": true,
+      "engines": [],
+      "reservations": {
+        "multi_unit": true,
+        "mode": "NAIVE",
+        "resources": {
+          "Compute": "A (2)",
+          "Memory": "B (2)"
+        },
+        "resource_vectors": {
+          "total": {
+            "Compute": 2,
+            "Memory": 2
+          },
+          "available": {
+            "Compute": 0,
+            "Memory": 0
+          }
+        },
+        "processes": [
+          {
+            "id": "A",
+            "order": 0,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "pending": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Compute\u00d72"
+            ]
+          },
+          {
+            "id": "B",
+            "order": 1,
+            "maximum": {
+              "Compute": 2,
+              "Memory": 2
+            },
+            "allocation": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "pending": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "status": "WAITING",
+            "restarts": 0,
+            "work_done": 0,
+            "held": [
+              "Memory\u00d72"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "from": "A",
+            "to": "B",
+            "resource": "Memory"
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "resource": "Compute"
+          }
+        ],
+        "cycles": [],
+        "deadlocked_processes": [
+          "A",
+          "B"
+        ],
+        "deadlock": true,
+        "safe_sequence": null,
+        "events": [
+          {
+            "sequence": 1,
+            "action": "GRANTED",
+            "process": "A",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 2,
+            "action": "GRANTED",
+            "process": "B",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "AVAILABLE"
+          },
+          {
+            "sequence": 3,
+            "action": "WAITING",
+            "process": "A",
+            "request": {
+              "Compute": 0,
+              "Memory": 2
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 4,
+            "action": "WAITING",
+            "process": "B",
+            "request": {
+              "Compute": 2,
+              "Memory": 0
+            },
+            "reason": "UNAVAILABLE"
+          },
+          {
+            "sequence": 5,
+            "action": "NO_RECOVERY",
+            "process": null,
+            "reason": "No recovery-enabled deadlock"
+          },
+          {
+            "sequence": 6,
+            "action": "BLOCKED_NOOP",
+            "process": "A"
+          },
+          {
+            "sequence": 7,
+            "action": "WAITING_NOOP",
+            "process": "B",
+            "reason": "Existing vector request remains pending"
+          },
+          {
+            "sequence": 8,
+            "action": "BLOCKED_NOOP",
+            "process": "B"
+          }
+        ],
+        "invariants_ok": true,
+        "recovery_policy": "ABORT_YOUNGEST_IN_CYCLE"
+      },
+      "rejections": [],
+      "events": [
+        {
+          "sequence": 1,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "A requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 1,
+              "action": "GRANTED",
+              "process": "A",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "B requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 2,
+              "action": "GRANTED",
+              "process": "B",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "AVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "operation": {
+            "action": "ensure",
+            "process": "A",
+            "amounts": {
+              "Memory": 2
+            },
+            "label": "A requests 2 Memory"
+          },
+          "outcomes": [
+            {
+              "sequence": 3,
+              "action": "WAITING",
+              "process": "A",
+              "request": {
+                "Compute": 0,
+                "Memory": 2
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "B requests 2 Compute"
+          },
+          "outcomes": [
+            {
+              "sequence": 4,
+              "action": "WAITING",
+              "process": "B",
+              "request": {
+                "Compute": 2,
+                "Memory": 0
+              },
+              "reason": "UNAVAILABLE"
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "operation": {
+            "action": "recover",
+            "label": "Evaluate recovery"
+          },
+          "outcomes": [
+            {
+              "sequence": 5,
+              "action": "NO_RECOVERY",
+              "process": null,
+              "reason": "No recovery-enabled deadlock"
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "operation": {
+            "action": "finish",
+            "process": "A",
+            "label": "Complete A if its claim is held"
+          },
+          "outcomes": [
+            {
+              "sequence": 6,
+              "action": "BLOCKED_NOOP",
+              "process": "A"
+            }
+          ]
+        },
+        {
+          "sequence": 7,
+          "operation": {
+            "action": "ensure",
+            "process": "B",
+            "amounts": {
+              "Compute": 2
+            },
+            "label": "Retry B's Compute claim"
+          },
+          "outcomes": [
+            {
+              "sequence": 7,
+              "action": "WAITING_NOOP",
+              "process": "B",
+              "reason": "Existing vector request remains pending"
+            }
+          ]
+        },
+        {
+          "sequence": 8,
+          "operation": {
+            "action": "finish",
+            "process": "B",
+            "label": "Complete B if its claim is held"
+          },
+          "outcomes": [
+            {
+              "sequence": 8,
+              "action": "BLOCKED_NOOP",
+              "process": "B"
+            }
+          ]
+        }
+      ],
+      "invariants_ok": true
+    }
+  ],
+  "note": "Executed steps only. Unit counts and virtual timestamps are simulated."
+}

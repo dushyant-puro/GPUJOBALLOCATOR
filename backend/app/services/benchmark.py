@@ -19,7 +19,7 @@ from app.services.replay import EPOCH, ReplayRun, make_trace
 METRIC_KEYS = ["makespan_seconds", "mean_wait_seconds", "p95_wait_seconds",
                "mean_slowdown", "throughput_per_minute", "compute_utilization_percent",
                "memory_utilization_percent", "resource_imbalance_percent",
-               "starvation_rate_percent", "preemptions", "completion_rate_percent"]
+               "starvation_rate_percent", "preemptions", "completion_rate_percent", "external_fragmentation_percent", "stranded_capacity_percent", "fragmentation_blocked_jobs_mean", "max_wait_seconds", "slowdown_jain_index"]
 DEFINITIONS = {
     "observation_window": "Zero to final completion/stall, or the configured timeout; per-policy window is recorded.",
     "utilization": "100 * integral(used/capacity dt) / observation seconds, per resource; includes idle gaps.",
@@ -31,6 +31,11 @@ DEFINITIONS = {
     "throughput_per_minute": "Completed jobs * 60 / observation seconds.",
     "makespan_seconds": "Final completion time from zero, including arrival gaps; null for incomplete/stalled workloads.",
     "preemption_overhead": "Not modeled; progress is preserved and interruption/recovery cost is assumed zero.",
+    "external_fragmentation_percent": "Time-weighted mean of external free-block fragmentation; not the old resource-imbalance metric.",
+    "stranded_capacity_percent": "Time-weighted share of free units stranded relative to feasible admitted waiting demand; zero without waiting demand.",
+    "fragmentation_blocked_jobs_mean": "Time-weighted count of jobs blocked by fragmentation; infeasible jobs excluded.",
+    "max_wait_seconds": "Maximum observed cumulative wait across feasible arrived jobs, including unfinished jobs.",
+    "slowdown_jain_index": "Jain index over completed-job slowdowns: squared sum / (count * sum of squares). Null with no completions; equality does not imply low delay.",
     "paired_delta": "Policy metric minus baseline metric on the exact same trace; missing metrics are not replaced with zero.",
     "bootstrap_interval": "Exploratory 95% percentile interval for paired mean differences; 2000 seeded resamples of distinct workloads. Null with fewer than two pairs.",
 }
@@ -74,7 +79,7 @@ def trial_metrics(run, horizon, threshold):
 
     def feasible(job):
         request = job.get_resource_request()
-        return any(all(amount <= capacity[key] for key, amount in request.items()) for capacity in total_gpus)
+        return any(candidate["fits_total_capacity"] for candidate in sim.evaluate_candidates(job))
 
     feasible_arrived = [job for job in jobs if feasible(job)]
     starving = [job for job in feasible_arrived
@@ -83,6 +88,7 @@ def trial_metrics(run, horizon, threshold):
                    for key, integral in run.resource_time.items()}
     makespan = seconds if run.status == "COMPLETED" else None
     status = run.status if run.status in {"COMPLETED", "STALLED"} else "TIMED_OUT"
+    slowdowns = [(job.completed_at-job.submitted_at).total_seconds()/job.duration_seconds for job in completed]
     mean = lambda values: statistics.mean(values) if values else None
     metrics = {
         "status": status, "observation_seconds": seconds, "timeout_seconds": horizon,
@@ -102,14 +108,19 @@ def trial_metrics(run, horizon, threshold):
         "preemptions": sim.preemption_count,
         "modeled_preemption_overhead_seconds": 0.0,
         "completion_rate_percent": len(completed) * 100 / len(run.trace),
+        "external_fragmentation_percent": 100 * run.fragmentation_time["external_fragmentation"] / seconds if seconds else 0,
+        "stranded_capacity_percent": 100 * run.fragmentation_time["stranded_capacity"] / seconds if seconds else 0,
+        "fragmentation_blocked_jobs_mean": run.fragmentation_time["blocked_by_fragmentation"] / seconds if seconds else 0,
+        "max_wait_seconds": max((job.get_waiting_duration_seconds() for job in feasible_arrived), default=0),
+        "slowdown_jain_index": sum(slowdowns)**2/(len(slowdowns)*sum(value**2 for value in slowdowns)) if slowdowns else None,
         "allocation_attempts": sim.allocation_attempts, "successful_allocations": sim.successful_allocations,
     }
     return {key: round(value, 6) if isinstance(value, float) else value for key, value in metrics.items()}
 
 
-def evaluate_trial(trace, policy, seed, horizon, threshold):
+def evaluate_trial(trace, policy, seed, horizon, threshold, placement_rule="NORMALIZED", alignment_weight=0.6, stranded_weight=0.3, aging_rate=1.0):
     started = perf_counter()
-    run = ReplayRun(trace, policy=policy)
+    run = ReplayRun(trace, policy=policy, placement_rule=placement_rule, alignment_weight=alignment_weight, stranded_weight=stranded_weight, aging_rate=aging_rate)
     # Advance directly without producing repeated UI snapshots or consulting wall time.
     with run.lock:
         run._advance(horizon)
@@ -179,13 +190,17 @@ def run_benchmark(config, progress=None):
         seen.add(identity)
         workloads.append({"seed": seed, "trace_hash": identity, "trace": trace})
     trials = []
-    total = len(workloads) * len(policies)
+    rules = config.get("placement_rules", ["NORMALIZED"])
+    variants = [(policy, rule, policy if len(rules) == 1 else f"{policy}/{rule}") for policy in policies for rule in rules]
+    baseline_variant = config["baseline"] if len(rules) == 1 else f"{config['baseline']}/{rules[0]}"
+    total = len(workloads) * len(variants)
     for workload in workloads:
-        for policy in policies:
-            trials.append(evaluate_trial(workload["trace"], policy, workload["seed"],
-                                         config["horizon_seconds"], config["starvation_threshold_seconds"]))
+        for policy, rule, label in variants:
+            trial = evaluate_trial(workload["trace"], policy, workload["seed"], config["horizon_seconds"], config["starvation_threshold_seconds"], rule, config.get("alignment_weight",0.6), config.get("stranded_weight",0.3), config.get("aging_rate",1.0))
+            trial.update(policy=label, queue_policy=policy, placement_rule=rule)
+            trials.append(trial)
             if progress:
-                progress(len(trials), total, policy, workload["seed"])
+                progress(len(trials), total, label, workload["seed"])
     warnings = ["Synthetic workloads on three identical simulated GPUs; zero checkpoint/recovery overhead.",
                 "Paired bootstrap intervals are exploratory and do not establish universal superiority."]
     if duplicate_seeds:
@@ -201,10 +216,10 @@ def run_benchmark(config, progress=None):
             "config": config,
             "workloads": workloads, "distinct_workloads": len(workloads), "duplicate_seeds": duplicate_seeds,
             "trial_count": len(trials), "trials": trials,
-            "summary": summarize(trials, policies, config["baseline"]),
+            "summary": summarize(trials, [label for _, _, label in variants], baseline_variant), "baseline_variant": baseline_variant,
             "metric_definitions": DEFINITIONS, "warnings": warnings,
             "cluster": {"gpu_count": 3, "per_gpu": {"compute_units": 8, "memory": 16, "accelerator_a": 4, "accelerator_b": 2}},
-            "semantics": {"queue_policy": policies, "placement_policy": "normalized-footprint-v2 for every queue policy",
+            "semantics": {"queue_policy": policies, "placement_policy": rules,
                           "simultaneous_events": "completions, then arrivals, then dispatch",
                           "evidence": "all committed decisions plus final blocking snapshot; event log includes retries"}}
 
@@ -215,7 +230,7 @@ def summary_view(result):
 
 def csv_export(result):
     output = io.StringIO(newline="")
-    fields = ["schema_version", "engine_version", "source_fingerprint", "baseline", "horizon_seconds", "starvation_threshold_seconds", "host_processing_ms", "seed", "trace_hash", "policy", "status", "total_jobs", "completed_jobs", "unfinished_jobs",
+    fields = ["schema_version", "engine_version", "source_fingerprint", "baseline", "horizon_seconds", "starvation_threshold_seconds", "host_processing_ms", "seed", "trace_hash", "policy", "placement_rule", "queue_policy", "status", "total_jobs", "completed_jobs", "unfinished_jobs",
               "scheduled_jobs", "infeasible_arrived_jobs", "observation_seconds", *METRIC_KEYS]
     writer = csv.DictWriter(output, fieldnames=fields, lineterminator="\n")
     writer.writeheader()
@@ -225,6 +240,6 @@ def csv_export(result):
                "horizon_seconds": result["config"]["horizon_seconds"],
                "starvation_threshold_seconds": result["config"]["starvation_threshold_seconds"],
                "host_processing_ms": trial["host_processing_ms"],
-               "seed": trial["seed"], "trace_hash": trial["trace_hash"], "policy": trial["policy"], **trial["metrics"]}
+               "seed": trial["seed"], "trace_hash": trial["trace_hash"], "policy": trial["policy"], "placement_rule": trial.get("placement_rule", "NORMALIZED"), "queue_policy": trial.get("queue_policy", trial["policy"]), **trial["metrics"]}
         writer.writerow({key: row.get(key) for key in fields})
     return output.getvalue()

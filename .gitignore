@@ -9,3 +9,9 @@ dist/
 backend/data/
 backend/results/
 .demo/
+
+*.sqlite3
+*.sqlite3-*
+*.pid
+.env.*
+!.env.example

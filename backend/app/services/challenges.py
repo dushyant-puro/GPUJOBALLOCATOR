@@ -6,6 +6,7 @@ from uuid import uuid4
 from app.services.replay import VirtualClock
 from app.services.simulation import Simulation
 from app.services.reservations import ReservationSimulation
+from app.services.banker import MultiUnitReservations
 
 
 def node(gpu_id, compute, memory, kind="GENERIC"):
@@ -53,10 +54,25 @@ CATALOG = {
 
 
 class ChallengeRun:
-    def __init__(self, challenge_id):
+    def __init__(self, challenge_id, reservation_mode="LEGACY", victim_policy="ABORT_YOUNGEST_IN_CYCLE", restart_limit=3):
         self.lock = RLock()
         self.run_id = str(uuid4())
         self.definition = deepcopy(CATALOG[challenge_id])
+        self.reservation_mode, self.victim_policy, self.restart_limit = reservation_mode, victim_policy, restart_limit
+        if reservation_mode != "LEGACY":
+            if challenge_id != "C4":
+                raise ValueError("Reservation modes apply only to C4.")
+            self.definition["steps"] = [
+                {"action":"ensure", "process":"A", "amounts":{"Compute":2}, "label":"A requests 2 Compute"},
+                {"action":"ensure", "process":"B", "amounts":{"Memory":2}, "label":"B requests 2 Memory"},
+                {"action":"ensure", "process":"A", "amounts":{"Memory":2}, "label":"A requests 2 Memory"},
+                {"action":"ensure", "process":"B", "amounts":{"Compute":2}, "label":"B requests 2 Compute"},
+                {"action":"recover", "label":"Evaluate recovery"},
+                {"action":"finish", "process":"A", "label":"Complete A if its claim is held"},
+                {"action":"ensure", "process":"B", "amounts":{"Compute":2}, "label":"Retry B's Compute claim"},
+                {"action":"finish", "process":"B", "label":"Complete B if its claim is held"}]
+            self.definition["mechanism"] = f"Multi-unit mode {reservation_mode}: total (2 Compute, 2 Memory); A and B each declare maximum (2,2)."
+            self.definition["assumptions"] = ["Declared maximum claims. Multi-instance deadlock uses current-request reduction; avoidance uses Banker's safe-sequence check.", "Recovery restarts a victim with zero holdings and requeues its full claim. After the restart limit it is protected; unresolved recovery is reported, never hidden.", "No hardware is used. Cost-weighted recovery uses accumulated work plus held units, with youngest-process ties."]
         self.reset()
 
     def reset(self):
@@ -66,7 +82,7 @@ class ChallengeRun:
             self.events = []
             self.history = []
             self.rejections = []
-            self.reservations = ReservationSimulation() if self.definition["id"] == "C4" else None
+            self.reservations = (ReservationSimulation() if self.reservation_mode == "LEGACY" else MultiUnitReservations({"Compute":2,"Memory":2},{"A":{"Compute":2,"Memory":2},"B":{"Compute":2,"Memory":2}},mode=self.reservation_mode,victim_policy=self.victim_policy,restart_limit=self.restart_limit)) if self.definition["id"] == "C4" else None
             rules = [("First fit", "FIRST_FIT"), ("Memory best fit", "MEMORY_BEST_FIT")] if self.definition["id"] == "C3" else [("Vector allocator", "NORMALIZED")]
             self.engines = {} if self.reservations else {label: Simulation(clock=self.clock, nodes=self.definition["nodes"], placement_rule=rule) for label, rule in rules}
             for engine in self.engines.values():
@@ -84,7 +100,9 @@ class ChallengeRun:
             outcomes = []
             if self.reservations:
                 action = operation["action"]
-                if action == "reserve":
+                if action == "ensure":
+                    result = self.reservations.ensure(operation["process"], operation["amounts"])
+                elif action == "reserve":
                     result = self.reservations.request(operation["process"], operation["resource"])
                 elif action == "recover":
                     result = self.reservations.recover()
@@ -153,11 +171,11 @@ class ChallengeRegistry:
         self.runs = {}
         self.lock = RLock()
 
-    def create(self, challenge_id):
+    def create(self, challenge_id, **options):
         with self.lock:
             if len(self.runs) >= self.limit:
                 raise ValueError("Challenge session limit reached. Reuse or delete an existing session.")
-            run = ChallengeRun(challenge_id)
+            run = ChallengeRun(challenge_id, **options)
             self.runs[run.run_id] = run
             return run
 

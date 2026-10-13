@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
+from app.services.security import LocalSecurityMiddleware, origins
 from app.api import benchmarks
 
 from app.api.jobs import router as jobs_router
@@ -33,15 +34,14 @@ app = FastAPI(
 # Allow the React frontend to communicate with FastAPI
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
+
+app.add_middleware(LocalSecurityMiddleware)
 
 # API Routers
 app.include_router(jobs_router)
