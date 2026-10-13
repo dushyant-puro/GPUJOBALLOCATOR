@@ -1,0 +1,2564 @@
+{
+  "schema_version": 1,
+  "engine_version": "paired-benchmark-v1",
+  "created_at": "2026-10-13T05:00:25.198747+00:00",
+  "source_fingerprint": "b25550081128c160f74617d33ba687e5608731e3d22e5fccd9af7b4d93bc9f77",
+  "runtime": {
+    "python": "3.13.9",
+    "fastapi": "0.139.0",
+    "pydantic": "2.13.4"
+  },
+  "config": {
+    "name": "Hackathon reference · urgent workload",
+    "preset": "PREEMPTION",
+    "count": 4,
+    "seeds": [
+      42
+    ],
+    "policies": [
+      "FCFS",
+      "PREEMPTIVE"
+    ],
+    "baseline": "FCFS",
+    "horizon_seconds": 100.0,
+    "starvation_threshold_seconds": 30.0,
+    "jobs": null
+  },
+  "workloads": [
+    {
+      "seed": 42,
+      "trace_hash": "3a88f7524fda876375bd725550681cb7d771add3664a9db27ec7d8c0aab11fb4",
+      "trace": [
+        {
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "name": "Long job 1",
+          "priority": 1,
+          "arrival_seconds": 0,
+          "duration_seconds": 20
+        },
+        {
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "name": "Long job 2",
+          "priority": 1,
+          "arrival_seconds": 0,
+          "duration_seconds": 20
+        },
+        {
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "name": "Long job 3",
+          "priority": 1,
+          "arrival_seconds": 0,
+          "duration_seconds": 20
+        },
+        {
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "name": "Urgent job",
+          "priority": 5,
+          "arrival_seconds": 5,
+          "duration_seconds": 4
+        }
+      ]
+    }
+  ],
+  "distinct_workloads": 1,
+  "duplicate_seeds": [],
+  "trial_count": 2,
+  "trials": [
+    {
+      "seed": 42,
+      "policy": "FCFS",
+      "trace_hash": "3a88f7524fda876375bd725550681cb7d771add3664a9db27ec7d8c0aab11fb4",
+      "metrics": {
+        "status": "COMPLETED",
+        "observation_seconds": 24.0,
+        "timeout_seconds": 100.0,
+        "total_jobs": 4,
+        "completed_jobs": 4,
+        "arrived_jobs": 4,
+        "unfinished_jobs": 0,
+        "scheduled_jobs": 0,
+        "infeasible_arrived_jobs": 0,
+        "feasible_arrived_jobs": 4,
+        "starved_jobs": 0,
+        "makespan_seconds": 24.0,
+        "mean_wait_seconds": 3.75,
+        "p95_wait_seconds": 15.0,
+        "mean_slowdown": 1.9375,
+        "throughput_per_minute": 10.0,
+        "compute_utilization_percent": 88.888889,
+        "memory_utilization_percent": 88.888889,
+        "utilization_by_resource": {
+          "compute_units": 88.88888888888887,
+          "memory": 88.88888888888887,
+          "accelerator_a": 88.88888888888887,
+          "accelerator_b": 88.88888888888887
+        },
+        "resource_imbalance_percent": 0.0,
+        "starvation_rate_percent": 0.0,
+        "preemptions": 0,
+        "modeled_preemption_overhead_seconds": 0.0,
+        "completion_rate_percent": 100.0,
+        "allocation_attempts": 5,
+        "successful_allocations": 4
+      },
+      "jobs": [
+        {
+          "job_id": 1,
+          "name": "Long job 1",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-0",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-0",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "queue_position": 1,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:20+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 20.0,
+          "trace_index": 0,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 2,
+          "name": "Long job 2",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-1",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-1",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "queue_position": 2,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:20+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 20.0,
+          "trace_index": 1,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 3,
+          "name": "Long job 3",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-2",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-2",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "queue_position": 3,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:20+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 20.0,
+          "trace_index": 2,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 4,
+          "name": "Urgent job",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 5,
+          "required_node_type": null,
+          "duration_seconds": 4,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-0",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-0",
+              "started_at": "2000-01-01T00:00:20+00:00",
+              "ended_at": "2000-01-01T00:00:24+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:05+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:20+00:00",
+              "ended_at": "2000-01-01T00:00:24+00:00"
+            }
+          ],
+          "queue_position": 4,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:05+00:00",
+          "started_at": "2000-01-01T00:00:20+00:00",
+          "waiting_started_at": "2000-01-01T00:00:05+00:00",
+          "completed_at": "2000-01-01T00:00:24+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 15.0,
+          "waiting_duration_seconds": 15.0,
+          "execution_duration_seconds": 4.0,
+          "total_duration_seconds": 19.0,
+          "trace_index": 3,
+          "accumulated_wait_seconds": 15.0,
+          "execution_progress_seconds": 4.0
+        }
+      ],
+      "events": [
+        {
+          "event_id": 1,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 1,
+          "name": "Long job 1"
+        },
+        {
+          "event_id": 2,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 2,
+          "name": "Long job 2"
+        },
+        {
+          "event_id": 3,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 3,
+          "name": "Long job 3"
+        },
+        {
+          "event_id": 4,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 1,
+          "gpu_id": "GPU-0",
+          "decision_id": 1
+        },
+        {
+          "event_id": 5,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 2,
+          "gpu_id": "GPU-1",
+          "decision_id": 2
+        },
+        {
+          "event_id": 6,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 3
+        },
+        {
+          "event_id": 7,
+          "time_seconds": 5,
+          "kind": "ARRIVAL",
+          "job_id": 4,
+          "name": "Urgent job"
+        },
+        {
+          "event_id": 8,
+          "time_seconds": 5,
+          "kind": "WAITING",
+          "job_id": 4,
+          "gpu_id": null,
+          "decision_id": 4
+        },
+        {
+          "event_id": 9,
+          "time_seconds": 20.0,
+          "kind": "COMPLETED",
+          "job_id": 1,
+          "gpu_id": "GPU-0",
+          "decision_id": 5
+        },
+        {
+          "event_id": 10,
+          "time_seconds": 20.0,
+          "kind": "COMPLETED",
+          "job_id": 2,
+          "gpu_id": "GPU-1",
+          "decision_id": 6
+        },
+        {
+          "event_id": 11,
+          "time_seconds": 20.0,
+          "kind": "COMPLETED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 7
+        },
+        {
+          "event_id": 12,
+          "time_seconds": 20.0,
+          "kind": "ALLOCATED",
+          "job_id": 4,
+          "gpu_id": "GPU-0",
+          "decision_id": 8
+        },
+        {
+          "event_id": 13,
+          "time_seconds": 24.0,
+          "kind": "COMPLETED",
+          "job_id": 4,
+          "gpu_id": "GPU-0",
+          "decision_id": 9
+        }
+      ],
+      "decisions": [
+        {
+          "decision_id": 1,
+          "job_id": 1,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 3,
+          "resource_version": 0,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-0",
+          "score": 82.5,
+          "headline": "GPU-0 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "FCFS",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 2,
+          "job_id": 2,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 4,
+          "resource_version": 1,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-1",
+          "score": 82.5,
+          "headline": "GPU-1 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "FCFS",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 3,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 5,
+          "resource_version": 2,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-2",
+          "score": 82.5,
+          "headline": "GPU-2 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "FCFS",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 5,
+          "job_id": 1,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 8,
+          "resource_version": 4,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-0",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "FCFS",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 6,
+          "job_id": 2,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 9,
+          "resource_version": 5,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-1",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "FCFS",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 7,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 10,
+          "resource_version": 6,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-2",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "FCFS",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 8,
+          "job_id": 4,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 10,
+          "resource_version": 6,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-0",
+          "score": 82.5,
+          "headline": "GPU-0 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "FCFS",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 9,
+          "job_id": 4,
+          "recorded_at": "2000-01-01T00:00:24+00:00",
+          "state_version": 12,
+          "resource_version": 8,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-0",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "FCFS",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        }
+      ],
+      "host_processing_ms": 2.5
+    },
+    {
+      "seed": 42,
+      "policy": "PREEMPTIVE",
+      "trace_hash": "3a88f7524fda876375bd725550681cb7d771add3664a9db27ec7d8c0aab11fb4",
+      "metrics": {
+        "status": "COMPLETED",
+        "observation_seconds": 24.0,
+        "timeout_seconds": 100.0,
+        "total_jobs": 4,
+        "completed_jobs": 4,
+        "arrived_jobs": 4,
+        "unfinished_jobs": 0,
+        "scheduled_jobs": 0,
+        "infeasible_arrived_jobs": 0,
+        "feasible_arrived_jobs": 4,
+        "starved_jobs": 0,
+        "makespan_seconds": 24.0,
+        "mean_wait_seconds": 1.0,
+        "p95_wait_seconds": 4.0,
+        "mean_slowdown": 1.05,
+        "throughput_per_minute": 10.0,
+        "compute_utilization_percent": 88.888889,
+        "memory_utilization_percent": 88.888889,
+        "utilization_by_resource": {
+          "compute_units": 88.88888888888887,
+          "memory": 88.88888888888887,
+          "accelerator_a": 88.88888888888887,
+          "accelerator_b": 88.88888888888887
+        },
+        "resource_imbalance_percent": 0.0,
+        "starvation_rate_percent": 0.0,
+        "preemptions": 1,
+        "modeled_preemption_overhead_seconds": 0.0,
+        "completion_rate_percent": 100.0,
+        "allocation_attempts": 6,
+        "successful_allocations": 5
+      },
+      "jobs": [
+        {
+          "job_id": 1,
+          "name": "Long job 1",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-0",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-0",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "queue_position": 1,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:20+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 20.0,
+          "trace_index": 0,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 2,
+          "name": "Long job 2",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-1",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-1",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:20+00:00"
+            }
+          ],
+          "queue_position": 2,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:20+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 20.0,
+          "trace_index": 1,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 3,
+          "name": "Long job 3",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 1,
+          "required_node_type": null,
+          "duration_seconds": 20,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-2",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-2",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:05+00:00"
+            },
+            {
+              "gpu_id": "GPU-2",
+              "started_at": "2000-01-01T00:00:09+00:00",
+              "ended_at": "2000-01-01T00:00:24+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:00+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:00+00:00",
+              "ended_at": "2000-01-01T00:00:05+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:09+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:09+00:00",
+              "ended_at": "2000-01-01T00:00:24+00:00"
+            }
+          ],
+          "queue_position": 3,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:00+00:00",
+          "started_at": "2000-01-01T00:00:00+00:00",
+          "waiting_started_at": "2000-01-01T00:00:00+00:00",
+          "completed_at": "2000-01-01T00:00:24+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 4.0,
+          "execution_duration_seconds": 20.0,
+          "total_duration_seconds": 24.0,
+          "trace_index": 2,
+          "accumulated_wait_seconds": 4.0,
+          "execution_progress_seconds": 20.0
+        },
+        {
+          "job_id": 4,
+          "name": "Urgent job",
+          "compute_required": 8,
+          "memory_required": 16,
+          "accelerator_a_required": 4,
+          "accelerator_b_required": 2,
+          "priority": 5,
+          "required_node_type": null,
+          "duration_seconds": 4,
+          "remaining_duration_seconds": 0.0,
+          "gpu_id": null,
+          "last_gpu_id": "GPU-2",
+          "placement_history": [
+            {
+              "gpu_id": "GPU-2",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:09+00:00"
+            }
+          ],
+          "intervals": [
+            {
+              "status": "QUEUED",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:05+00:00"
+            },
+            {
+              "status": "WAITING",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:05+00:00"
+            },
+            {
+              "status": "RUNNING",
+              "started_at": "2000-01-01T00:00:05+00:00",
+              "ended_at": "2000-01-01T00:00:09+00:00"
+            }
+          ],
+          "queue_position": 4,
+          "allocation_score": 82.5,
+          "status": "COMPLETED",
+          "submitted_at": "2000-01-01T00:00:05+00:00",
+          "started_at": "2000-01-01T00:00:05+00:00",
+          "waiting_started_at": "2000-01-01T00:00:05+00:00",
+          "completed_at": "2000-01-01T00:00:09+00:00",
+          "cancelled_at": null,
+          "queue_wait_seconds": 0.0,
+          "waiting_duration_seconds": 0.0,
+          "execution_duration_seconds": 4.0,
+          "total_duration_seconds": 4.0,
+          "trace_index": 3,
+          "accumulated_wait_seconds": 0.0,
+          "execution_progress_seconds": 4.0
+        }
+      ],
+      "events": [
+        {
+          "event_id": 1,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 1,
+          "name": "Long job 1"
+        },
+        {
+          "event_id": 2,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 2,
+          "name": "Long job 2"
+        },
+        {
+          "event_id": 3,
+          "time_seconds": 0.0,
+          "kind": "ARRIVAL",
+          "job_id": 3,
+          "name": "Long job 3"
+        },
+        {
+          "event_id": 4,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 1,
+          "gpu_id": "GPU-0",
+          "decision_id": 1
+        },
+        {
+          "event_id": 5,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 2,
+          "gpu_id": "GPU-1",
+          "decision_id": 2
+        },
+        {
+          "event_id": 6,
+          "time_seconds": 0.0,
+          "kind": "ALLOCATED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 3
+        },
+        {
+          "event_id": 7,
+          "time_seconds": 5,
+          "kind": "ARRIVAL",
+          "job_id": 4,
+          "name": "Urgent job"
+        },
+        {
+          "event_id": 8,
+          "time_seconds": 5,
+          "kind": "PREEMPTED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 4
+        },
+        {
+          "event_id": 9,
+          "time_seconds": 5,
+          "kind": "ALLOCATED",
+          "job_id": 4,
+          "gpu_id": "GPU-2",
+          "decision_id": 5
+        },
+        {
+          "event_id": 10,
+          "time_seconds": 5,
+          "kind": "WAITING",
+          "job_id": 3,
+          "gpu_id": null,
+          "decision_id": 6
+        },
+        {
+          "event_id": 11,
+          "time_seconds": 9.0,
+          "kind": "COMPLETED",
+          "job_id": 4,
+          "gpu_id": "GPU-2",
+          "decision_id": 7
+        },
+        {
+          "event_id": 12,
+          "time_seconds": 9.0,
+          "kind": "ALLOCATED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 8
+        },
+        {
+          "event_id": 13,
+          "time_seconds": 20.0,
+          "kind": "COMPLETED",
+          "job_id": 1,
+          "gpu_id": "GPU-0",
+          "decision_id": 9
+        },
+        {
+          "event_id": 14,
+          "time_seconds": 20.0,
+          "kind": "COMPLETED",
+          "job_id": 2,
+          "gpu_id": "GPU-1",
+          "decision_id": 10
+        },
+        {
+          "event_id": 15,
+          "time_seconds": 24.0,
+          "kind": "COMPLETED",
+          "job_id": 3,
+          "gpu_id": "GPU-2",
+          "decision_id": 11
+        }
+      ],
+      "decisions": [
+        {
+          "decision_id": 1,
+          "job_id": 1,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 3,
+          "resource_version": 0,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-0",
+          "score": 82.5,
+          "headline": "GPU-0 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 2,
+          "job_id": 2,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 4,
+          "resource_version": 1,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-1",
+          "score": 82.5,
+          "headline": "GPU-1 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 3,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:00+00:00",
+          "state_version": 5,
+          "resource_version": 2,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-2",
+          "score": 82.5,
+          "headline": "GPU-2 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 4,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:05+00:00",
+          "state_version": 8,
+          "resource_version": 4,
+          "job_state_before": "RUNNING",
+          "decision": "PREEMPTED",
+          "allocated": false,
+          "gpu_id": "GPU-2",
+          "score": 0.0,
+          "headline": "Resources released so another job can run.",
+          "reasons": [
+            "The job returned to the waiting queue; running time is preserved."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 5,
+          "job_id": 4,
+          "recorded_at": "2000-01-01T00:00:05+00:00",
+          "state_version": 8,
+          "resource_version": 4,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-2",
+          "score": 82.5,
+          "headline": "GPU-2 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 7,
+          "job_id": 4,
+          "recorded_at": "2000-01-01T00:00:09+00:00",
+          "state_version": 10,
+          "resource_version": 6,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-2",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 8,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:09+00:00",
+          "state_version": 10,
+          "resource_version": 6,
+          "job_state_before": "WAITING",
+          "decision": "ALLOCATED",
+          "allocated": true,
+          "gpu_id": "GPU-2",
+          "score": 82.5,
+          "headline": "GPU-2 selected by the scheduler.",
+          "reasons": [
+            "All requested resources fit in the recorded pre-allocation state.",
+            "Highest candidate score wins; GPU ID breaks score ties.",
+            "Score uses resource balance, imbalance change and normalized footprint."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [
+            {
+              "gpu_id": "GPU-0",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-1",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": false,
+              "score": 0.0,
+              "score_components": {
+                "eligible": false,
+                "score": 0.0
+              },
+              "available_before": {
+                "compute_units": 0,
+                "memory": 0,
+                "accelerator_a": 0,
+                "accelerator_b": 0
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            },
+            {
+              "gpu_id": "GPU-2",
+              "node_type": "GENERIC",
+              "compatible": true,
+              "required_node_type": null,
+              "eligible": true,
+              "score": 82.5,
+              "score_components": {
+                "eligible": true,
+                "score": 82.5,
+                "balance_score": 100.0,
+                "imbalance_change_score": 50.0,
+                "resource_footprint_score": 100.0,
+                "imbalance_before": 0.0,
+                "imbalance_after": 0.0,
+                "weights": {
+                  "balance": 0.4,
+                  "imbalance_change": 0.35,
+                  "resource_footprint": 0.25
+                }
+              },
+              "available_before": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "total": {
+                "compute_units": 8,
+                "memory": 16,
+                "accelerator_a": 4,
+                "accelerator_b": 2
+              },
+              "blocking_resources": {},
+              "capacity_deficits": {},
+              "fits_total_capacity": true
+            }
+          ],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 9,
+          "job_id": 1,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 12,
+          "resource_version": 8,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-0",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 10,
+          "job_id": 2,
+          "recorded_at": "2000-01-01T00:00:20+00:00",
+          "state_version": 13,
+          "resource_version": 9,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-1",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        },
+        {
+          "decision_id": 11,
+          "job_id": 3,
+          "recorded_at": "2000-01-01T00:00:24+00:00",
+          "state_version": 14,
+          "resource_version": 10,
+          "job_state_before": "RUNNING",
+          "decision": "COMPLETED",
+          "allocated": false,
+          "gpu_id": "GPU-2",
+          "score": 0.0,
+          "headline": "Job completed; its resources were released.",
+          "reasons": [
+            "The job has reached its terminal state."
+          ],
+          "policy": "PREEMPTIVE",
+          "candidates": [],
+          "resource_request": {
+            "compute_units": 8,
+            "memory": 16,
+            "accelerator_a": 4,
+            "accelerator_b": 2
+          },
+          "tie_breaker": "score descending, GPU ID ascending",
+          "scoring_version": "normalized-footprint-v2",
+          "placement_rule": "NORMALIZED"
+        }
+      ],
+      "host_processing_ms": 3.051
+    }
+  ],
+  "summary": [
+    {
+      "policy": "FCFS",
+      "trials": 1,
+      "complete_trials": 1,
+      "metrics": {
+        "makespan_seconds": {
+          "mean": 24.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "mean_wait_seconds": {
+          "mean": 3.75,
+          "stddev": null,
+          "samples": 1
+        },
+        "p95_wait_seconds": {
+          "mean": 15.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "mean_slowdown": {
+          "mean": 1.9375,
+          "stddev": null,
+          "samples": 1
+        },
+        "throughput_per_minute": {
+          "mean": 10.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "compute_utilization_percent": {
+          "mean": 88.888889,
+          "stddev": null,
+          "samples": 1
+        },
+        "memory_utilization_percent": {
+          "mean": 88.888889,
+          "stddev": null,
+          "samples": 1
+        },
+        "resource_imbalance_percent": {
+          "mean": 0.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "starvation_rate_percent": {
+          "mean": 0.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "preemptions": {
+          "mean": 0,
+          "stddev": null,
+          "samples": 1
+        },
+        "completion_rate_percent": {
+          "mean": 100.0,
+          "stddev": null,
+          "samples": 1
+        }
+      },
+      "paired_deltas": {
+        "makespan_seconds": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "mean_wait_seconds": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "p95_wait_seconds": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "mean_slowdown": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "throughput_per_minute": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "compute_utilization_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "memory_utilization_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "resource_imbalance_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "starvation_rate_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "preemptions": {
+          "mean": 0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "completion_rate_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        }
+      }
+    },
+    {
+      "policy": "PREEMPTIVE",
+      "trials": 1,
+      "complete_trials": 1,
+      "metrics": {
+        "makespan_seconds": {
+          "mean": 24.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "mean_wait_seconds": {
+          "mean": 1.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "p95_wait_seconds": {
+          "mean": 4.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "mean_slowdown": {
+          "mean": 1.05,
+          "stddev": null,
+          "samples": 1
+        },
+        "throughput_per_minute": {
+          "mean": 10.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "compute_utilization_percent": {
+          "mean": 88.888889,
+          "stddev": null,
+          "samples": 1
+        },
+        "memory_utilization_percent": {
+          "mean": 88.888889,
+          "stddev": null,
+          "samples": 1
+        },
+        "resource_imbalance_percent": {
+          "mean": 0.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "starvation_rate_percent": {
+          "mean": 0.0,
+          "stddev": null,
+          "samples": 1
+        },
+        "preemptions": {
+          "mean": 1,
+          "stddev": null,
+          "samples": 1
+        },
+        "completion_rate_percent": {
+          "mean": 100.0,
+          "stddev": null,
+          "samples": 1
+        }
+      },
+      "paired_deltas": {
+        "makespan_seconds": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "mean_wait_seconds": {
+          "mean": -2.75,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "p95_wait_seconds": {
+          "mean": -11.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "mean_slowdown": {
+          "mean": -0.8875,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "throughput_per_minute": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "compute_utilization_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "memory_utilization_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "resource_imbalance_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "starvation_rate_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "preemptions": {
+          "mean": 1,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        },
+        "completion_rate_percent": {
+          "mean": 0.0,
+          "pairs": 1,
+          "bootstrap_95_interval": null
+        }
+      }
+    }
+  ],
+  "metric_definitions": {
+    "observation_window": "Zero to final completion/stall, or the configured timeout; per-policy window is recorded.",
+    "utilization": "100 * integral(used/capacity dt) / observation seconds, per resource; includes idle gaps.",
+    "resource_imbalance_percent": "Time average of max minus min cluster utilization across resource types; not demand-aware fragmentation.",
+    "mean_wait_seconds": "Mean accumulated QUEUED/WAITING time for completed jobs only; incomplete counts are reported separately.",
+    "p95_wait_seconds": "Nearest-rank 95th percentile of accumulated waiting among completed jobs; null when none finish.",
+    "mean_slowdown": "Mean (completion - arrival) / requested runtime among completed jobs.",
+    "starvation_rate_percent": "Percent of feasible arrived jobs whose observed cumulative waiting exceeds the configured threshold, including unfinished jobs.",
+    "throughput_per_minute": "Completed jobs * 60 / observation seconds.",
+    "makespan_seconds": "Final completion time from zero, including arrival gaps; null for incomplete/stalled workloads.",
+    "preemption_overhead": "Not modeled; progress is preserved and interruption/recovery cost is assumed zero.",
+    "paired_delta": "Policy metric minus baseline metric on the exact same trace; missing metrics are not replaced with zero.",
+    "bootstrap_interval": "Exploratory 95% percentile interval for paired mean differences; 2000 seeded resamples of distinct workloads. Null with fewer than two pairs."
+  },
+  "warnings": [
+    "Synthetic workloads on three identical simulated GPUs; zero checkpoint/recovery overhead.",
+    "Paired bootstrap intervals are exploratory and do not establish universal superiority.",
+    "Only one distinct workload: confidence intervals are unavailable."
+  ],
+  "cluster": {
+    "gpu_count": 3,
+    "per_gpu": {
+      "compute_units": 8,
+      "memory": 16,
+      "accelerator_a": 4,
+      "accelerator_b": 2
+    }
+  },
+  "semantics": {
+    "queue_policy": [
+      "FCFS",
+      "PREEMPTIVE"
+    ],
+    "placement_policy": "normalized-footprint-v2 for every queue policy",
+    "simultaneous_events": "completions, then arrivals, then dispatch",
+    "evidence": "all committed decisions plus final blocking snapshot; event log includes retries"
+  }
+}

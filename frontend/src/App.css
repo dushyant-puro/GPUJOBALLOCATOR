@@ -1,0 +1,1240 @@
+/* =========================================
+   GPU JOB ALLOCATOR - MODERN DASHBOARD UI
+   ========================================= */
+
+:root {
+  font-family:
+    Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  color: #e5e7eb;
+  background: #0b1020;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  --bg: #0b1020;
+  --bg-secondary: #111827;
+  --card: #151c2f;
+  --card-hover: #1a2339;
+
+  --border: #27324a;
+  --border-light: #33405c;
+
+  --text: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --blue: #38bdf8;
+
+  --shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25);
+
+  --radius: 14px;
+}
+
+
+/* =========================================
+   GLOBAL
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(99, 102, 241, 0.12),
+      transparent 30%
+    ),
+    var(--bg);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+a {
+  color: inherit;
+}
+
+
+/* =========================================
+   DASHBOARD
+   ========================================= */
+
+.dashboard {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+
+/* =========================================
+   HEADER
+   ========================================= */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 30px;
+  padding: 26px 28px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.12),
+      rgba(17, 24, 39, 0.95)
+    );
+
+  box-shadow: var(--shadow);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+
+  color: var(--text);
+}
+
+.dashboard-header p {
+  margin: 7px 0 0;
+
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.dashboard-header button {
+  border: none;
+  border-radius: 9px;
+
+  padding: 10px 18px;
+
+  background: var(--accent);
+  color: white;
+
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dashboard-header button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+
+/* =========================================
+   LIVE INDICATOR
+   ========================================= */
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 12px;
+
+  color: var(--green);
+
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.5px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: var(--green);
+
+  box-shadow:
+    0 0 0 4px rgba(34, 197, 94, 0.08),
+    0 0 12px rgba(34, 197, 94, 0.55);
+
+  animation: livePulse 1.8s ease-in-out infinite;
+}
+
+.last-updated {
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+
+/* =========================================
+   ERROR
+   ========================================= */
+
+.error {
+  margin-bottom: 22px;
+  padding: 14px 18px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   STATISTICS
+   ========================================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 24px;
+}
+
+.card {
+  position: relative;
+
+  padding: 22px;
+
+  min-height: 125px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background: var(--accent);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+
+  border-color: var(--border-light);
+  background: var(--card-hover);
+}
+
+.card-label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.65px;
+}
+
+.card strong {
+  display: block;
+
+  color: var(--text);
+
+  font-size: 32px;
+  font-weight: 750;
+}
+
+.card small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   PANELS
+   ========================================= */
+
+.panel {
+  margin-bottom: 24px;
+
+  padding: 24px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow);
+}
+
+.panel h2 {
+  margin: 0 0 20px;
+
+  color: var(--text);
+
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.panel > p {
+  color: var(--text-secondary);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+
+/* =========================================
+   LIVE BADGES
+   ========================================= */
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  padding: 6px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.45px;
+  white-space: nowrap;
+}
+
+.live-badge:not(.deadlock-danger):not(.deadlock-safe) {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.22);
+}
+
+.deadlock-safe {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.deadlock-danger {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+
+  animation: dangerPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dangerPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.12);
+  }
+}
+
+
+/* =========================================
+   CREATE JOB FORM
+   ========================================= */
+
+.job-form {
+  display: grid;
+
+  grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr
+    1fr
+    1fr
+    auto;
+
+  gap: 12px;
+
+  align-items: center;
+}
+
+.job-form input,
+.job-form select {
+  width: 100%;
+
+  padding: 11px 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  outline: none;
+
+  background: #0f172a;
+  color: var(--text);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.job-form input::placeholder {
+  color: var(--text-muted);
+}
+
+.job-form input:focus,
+.job-form select:focus {
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.job-form button {
+  padding: 11px 18px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: var(--accent);
+  color: white;
+
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.job-form button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   RESOURCE GRID
+   ========================================= */
+
+.resource-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.resource-card {
+  padding: 19px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: #101827;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.resource-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.resource-card span {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.resource-card strong {
+  display: block;
+
+  color: var(--text);
+
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.resource-card small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   DEADLOCK MONITOR
+   ========================================= */
+
+.deadlock-safe + * {
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================
+   JOB TABLE
+   ========================================= */
+
+.table-container {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+  min-width: 1120px;
+}
+
+thead {
+  background: #0f172a;
+}
+
+th {
+  padding: 13px 15px;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+  font-weight: 650;
+
+  text-align: left;
+
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 14px 15px;
+
+  color: #dbe4f0;
+
+  font-size: 14px;
+
+  border-bottom: 1px solid rgba(39, 50, 74, 0.65);
+
+  vertical-align: middle;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================================
+   JOB RESOURCE CHIPS
+   ========================================= */
+
+.job-resources {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.job-resources span {
+  display: inline-flex;
+
+  padding: 4px 7px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: rgba(15, 23, 42, 0.7);
+
+  color: var(--text-secondary);
+
+  font-size: 11px;
+  font-weight: 650;
+}
+
+
+/* =========================================
+   EXECUTION TRACKING
+   ========================================= */
+
+.execution-tracking {
+  min-width: 250px;
+}
+
+.execution-tracking .job-resources {
+  gap: 6px;
+}
+
+.execution-tracking .job-resources span {
+  background: rgba(99, 102, 241, 0.07);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+.job-timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.job-timestamps span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.job-timestamps span strong {
+  color: var(--text-secondary);
+  font-weight: 650;
+}
+
+.duration-live {
+  color: #86efac !important;
+}
+
+.duration-waiting {
+  color: #fde68a !important;
+}
+
+.duration-completed {
+  color: #7dd3fc !important;
+}
+
+.duration-cancelled {
+  color: #fca5a5 !important;
+}
+
+/* The dashboard uses status-badge; keep the existing
+   status styling available under that class too. */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* =========================================
+   STATUS
+   ========================================= */
+
+.status {
+  display: inline-flex;
+
+  align-items: center;
+  gap: 7px;
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.status::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+.status-running {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.status-waiting {
+  color: #fde68a;
+  background: rgba(234, 179, 8, 0.12);
+}
+
+.status-completed {
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.status-queued {
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.status-cancelled {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+button {
+  border: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   JOB ACTIONS
+   ========================================= */
+
+.job-actions {
+  display: flex;
+
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  min-width: 145px;
+}
+
+.job-actions > span {
+  color: var(--text-secondary);
+
+  font-size: 12px;
+}
+
+
+/* =========================================
+   COMPLETE BUTTON
+   ========================================= */
+
+.complete-button {
+  padding: 7px 12px;
+
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 7px;
+
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.complete-button:hover {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.55);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   CANCEL BUTTON
+   ========================================= */
+
+.cancel-button {
+  padding: 7px 12px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 7px;
+
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cancel-button:hover {
+  background: rgba(239, 68, 68, 0.16);
+
+  border-color: rgba(239, 68, 68, 0.55);
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(239, 68, 68, 0.1);
+}
+
+
+/* =========================================
+   ANALYTICS
+   ========================================= */
+
+.analytics-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.analytics-card {
+  padding: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: #101827;
+}
+
+.analytics-card h3 {
+  margin: 0 0 10px;
+
+  font-size: 13px;
+  color: var(--text-secondary);
+
+  text-transform: capitalize;
+}
+
+.analytics-card strong {
+  font-size: 25px;
+  color: var(--text);
+}
+
+
+/* =========================================
+   FRAGMENTATION
+   ========================================= */
+
+.fragmentation-low {
+  color: var(--green);
+}
+
+.fragmentation-medium {
+  color: var(--yellow);
+}
+
+.fragmentation-high {
+  color: var(--red);
+}
+
+
+/* =========================================
+   PROGRESS BAR
+   ========================================= */
+
+.progress-container {
+  width: 100%;
+
+  height: 7px;
+
+  margin-top: 12px;
+
+  border-radius: 999px;
+
+  background: #1e293b;
+
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--blue)
+  );
+
+  transition: width 0.4s ease;
+}
+
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+
+.empty-state {
+  padding: 35px 20px;
+
+  text-align: center;
+
+  color: var(--text-muted);
+}
+
+.empty-state h3 {
+  margin: 0 0 7px;
+
+  color: var(--text-secondary);
+}
+
+.empty-state p {
+  margin: 0;
+
+  color: var(--text-muted);
+}
+
+
+/* =========================================
+   EXECUTION TRACKING PANEL
+   ========================================= */
+
+.execution-tracking-panel {
+  border-color: rgba(99, 102, 241, 0.24);
+  background:
+    linear-gradient(135deg, rgba(99, 102, 241, 0.06), var(--card));
+}
+
+.tracking-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tracking-item {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.tracking-item span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+}
+
+.tracking-item strong {
+  color: var(--text);
+  font-size: 17px;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+   ========================================= */
+
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .resource-grid,
+  .analytics-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .job-form {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tracking-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .job-form button {
+    width: 100%;
+  }
+}
+
+
+/* =========================================
+   RESPONSIVE - MOBILE
+   ========================================= */
+
+@media (max-width: 700px) {
+  .dashboard {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+
+    padding: 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+
+  .dashboard-header button {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-grid,
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .job-form {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 850px;
+  }
+
+  .job-actions {
+    min-width: 150px;
+  }
+}
+
+
+/* =========================================
+   SMALL MOBILE
+   ========================================= */
+
+@media (max-width: 420px) {
+  .dashboard {
+    padding: 10px;
+  }
+
+  .dashboard-header {
+    padding: 17px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 21px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .card strong {
+    font-size: 27px;
+  }
+
+  .panel {
+    padding: 15px;
+  }
+}
+/* ==========================================
+   SCHEDULING POLICY FIX
+   ========================================== */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.panel-header > div:first-child {
+  flex: 1;
+  min-width: 240px;
+}
+
+.panel-header h2 {
+  margin-bottom: 6px;
+}
+
+.panel-header p {
+  margin: 0;
+}
+
+.panel-header .live-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.panel .job-form {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.panel .job-form select {
+  min-width: 280px;
+  max-width: 100%;
+}
+
+.panel .job-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}

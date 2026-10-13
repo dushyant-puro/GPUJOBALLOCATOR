@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+.env
+*.log
+
+backend/data/
+backend/results/
+.demo/
