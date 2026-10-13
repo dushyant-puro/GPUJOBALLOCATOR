@@ -1,6 +1,7 @@
 import BenchmarkLab from "./BenchmarkLab";
+import AllocationCluster from "./AllocationCluster";
 import ReplayLab from "./ReplayLab";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Activity,
   BarChart3,
@@ -22,6 +23,12 @@ import {
   HardDrive
 } from "lucide-react";
 
+
+const apiFailure = (error, fallback) => {
+  const detail = error?.response?.data?.detail;
+  if (Array.isArray(detail)) return detail.map((item) => item.msg || "Invalid request").join(" · ");
+  return typeof detail === "string" ? detail : detail?.message || fallback;
+};
 
 const modernDashboardStyles = `
   :root {
@@ -2331,6 +2338,10 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
   // ==========================================
 
   const [jobs, setJobs] = useState([]);
+  const [allocating, setAllocating] = useState(false);
+  const mutation = useRef(false);
+  const loadVersion = useRef(0);
+  const mounted = useRef(true);
   const [resources, setResources] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [deadlock, setDeadlock] = useState({
@@ -2409,6 +2420,7 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
   // ==========================================
 
   const loadData = async () => {
+    const token = ++loadVersion.current;
     try {
 
       const [
@@ -2431,6 +2443,7 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
         getWorkloadStatistics(),
       ]);
 
+      if (!mounted.current || token !== loadVersion.current) return;
       setError("");
 
       // The /jobs/ endpoint returns an object like { jobs: [...] }.
@@ -2482,6 +2495,7 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
       setLoading(false);
 
     } catch (err) {
+      if (!mounted.current || token !== loadVersion.current) return;
       console.error("Dashboard error:", err);
 
       setError(
@@ -2499,9 +2513,12 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
 
   useEffect(() => {
     // Start network refresh asynchronously and cancel an abandoned initial mount.
+    mounted.current = true;
     const initial = setTimeout(loadData, 0);
-    const interval = setInterval(loadData, 3000);
+    const interval = setInterval(() => { if (!mutation.current) loadData(); }, 3000);
     return () => {
+      mounted.current = false;
+      loadVersion.current += 1;
       clearTimeout(initial);
       clearInterval(interval);
     };
@@ -2520,10 +2537,12 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
       return;
     }
 
+    if (mutation.current) return;
+    mutation.current = true; setAllocating(true);
     try {
       setError("");
 
-      await createJob({
+      const allocationRequest = createJob({
         name: form.name.trim(),
 
         compute_required: Number(
@@ -2547,6 +2566,11 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
         ),
       });
 
+      const instrument = document.querySelector('.allocation-cluster');
+      instrument?.scrollIntoView({ block: 'start' });
+      instrument?.focus({ preventScroll: true });
+      await allocationRequest;
+      if (!mounted.current) return;
       setForm({
         name: "",
         compute_required: 1,
@@ -2559,13 +2583,11 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
       await loadData();
 
     } catch (err) {
+      if (!mounted.current) return;
       console.error("Create job error:", err);
 
-      setError(
-        err?.response?.data?.detail ||
-        "Failed to create job."
-      );
-    }
+      setError(apiFailure(err, "Failed to create job."));
+    } finally { mutation.current = false; if (mounted.current) setAllocating(false); }
   };
 
 
@@ -3096,6 +3118,7 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
       <style>{modernDashboardStyles}</style>
       {embedded && <div className="manual-intro"><div><span className="studio-eyebrow">LIVE CLUSTER / MANUAL CONTROLS</span><h2>Manual workspace</h2><p>Submit jobs, inspect placement, and release resources in the live simulated cluster.</p></div><button type="button" onClick={loadData}>Refresh state</button></div>}
 
+      {embedded && <AllocationCluster resources={resources} jobs={jobs} contextKey="manual-workspace" title="Live allocation instrument" policy={schedulingPolicy?.placement_rule || "NORMALIZED"} busy={allocating || loading} error={error} animateInitial={false} />}
       <aside className="modern-sidebar">
         <div className="modern-brand">
           <div className="modern-brand-icon"><Zap size={21} strokeWidth={2.2} /></div>
@@ -4192,8 +4215,8 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
           </div>
 
           <div className="form-field form-field-action">
-            <button type="submit">
-              + Allocate Job
+            <button type="submit" disabled={allocating}>
+              {allocating ? "Allocating…" : "+ Allocate Job"}
             </button>
           </div>
 
@@ -5331,16 +5354,12 @@ function Dashboard({ theme = "light", embedded = false, onThemeChange = () => {}
 
                         <span>
                           C:{" "}
-                          {job.resources
-                            ?.compute_units ??
-                            0}
+                          {job.compute_required ?? job.resources?.compute_units ?? 0}
                         </span>
 
                         <span>
                           M:{" "}
-                          {job.resources
-                            ?.memory ??
-                            0}
+                          {job.memory_required ?? job.resources?.memory ?? 0}
                         </span>
 
                       </div>

@@ -11,6 +11,7 @@ import {
 } from "../services/api";
 
 import "./ReplayLab.css";
+import AllocationCluster from "./AllocationCluster";
 
 
 
@@ -60,6 +61,9 @@ function ReplayLab() {
   const [selectedJob, setSelectedJob] = useState(null);
 
   const generation = useRef(0);
+  const alive = useRef(true);
+  const [epoch, setEpoch] = useState(0);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; generation.current += 1; }; }, []);
 
   const busyRef = useRef(false);
 
@@ -114,8 +118,6 @@ function ReplayLab() {
         if (alive && version === generation.current && !busyRef.current) {
 
           setRun(response.data);
-
-          setError("");
 
         }
 
@@ -173,9 +175,9 @@ function ReplayLab() {
 
       const detail = err.response?.data?.detail || err.message;
 
-      setError(typeof detail === "string" ? detail : JSON.stringify(detail));
+      if (alive.current) setError(typeof detail === "string" ? detail : JSON.stringify(detail));
 
-    } finally { busyRef.current = false; setBusy(false); }
+    } finally { busyRef.current = false; if (alive.current) setBusy(false); }
 
   };
 
@@ -191,13 +193,15 @@ function ReplayLab() {
 
     const response = await createReplayRun(payload);
 
+    if (!alive.current) return;
     setRun(response.data);
 
     setSelectedId(response.data.run_id);
 
     setSelectedJob(null);
 
-    setRuns((await listReplayRuns()).data.runs);
+    const inventory = await listReplayRuns();
+    if (alive.current) setRuns(inventory.data.runs);
 
   });
 
@@ -207,9 +211,10 @@ function ReplayLab() {
 
     const response = await controlReplayRun(selectedId, { action, ...extra });
 
+    if (!alive.current) return;
     setRun(response.data);
 
-    if (action === "reset") setSelectedJob(null);
+    if (action === "reset") { setSelectedJob(null); setEpoch((value) => value + 1); }
 
   });
 
@@ -218,6 +223,7 @@ function ReplayLab() {
   const remove = () => perform(async () => {
 
     await deleteReplayRun(selectedId);
+    if (!alive.current) return;
 
     setSelectedId("");
 
@@ -227,7 +233,8 @@ function ReplayLab() {
 
     sessionStorage.removeItem("gpu-replay-run");
 
-    setRuns((await listReplayRuns()).data.runs);
+    const inventory = await listReplayRuns();
+    if (alive.current) setRuns(inventory.data.runs);
 
   });
 
@@ -352,7 +359,7 @@ function ReplayLab() {
 
 
 
-        <div className="replay-gpus">{Object.entries(run.resources.gpus || {}).map(([id, gpu]) => <div key={id}><strong>{id}</strong><span>Compute {gpu.available.compute_units} / {gpu.total.compute_units} free</span><span>Memory {gpu.available.memory} / {gpu.total.memory} free</span><div className="replay-gpu-meter"><i style={{ width: `${gpu.utilization.compute_units}%` }} /></div></div>)}</div>
+        <AllocationCluster resources={run.resources} jobs={run.jobs} contextKey={`${run.run_id}:${epoch}`} title="Inside this replay" policy={run.placement_rule} busy={busy} error={error} selectedJobId={selectedJob} onSelectJob={setSelectedJob} />
 
 
 
@@ -388,7 +395,7 @@ function ReplayLab() {
 
 
 
-        <div className="replay-events"><h3>Event log <small>· latest 30 of {run.event_count}</small></h3><div>{run.events.slice(-30).reverse().map((event) => <p key={event.event_id}><time>{format(event.time_seconds)} s</time><strong>{event.kind}</strong><span>Job #{event.job_id}{event.gpu_id ? ` → ${event.gpu_id}` : ""}</span></p>)}</div></div>
+        <div className="replay-events"><h3>Event log <small>· latest 30 of {run.event_count}</small></h3><div>{run.events.slice(-30).reverse().map((event) => <p key={event.event_id}><time>{format(event.time_seconds)} s</time><button type="button" onClick={() => setSelectedJob(event.job_id)} disabled={event.job_id == null} aria-label={`Inspect ${event.kind} for job ${event.job_id ?? "unknown"}`}><strong>{event.kind}</strong></button><span>Job #{event.job_id}{event.gpu_id ? ` → ${event.gpu_id}` : ""}</span></p>)}</div></div>
 
       </>}
 

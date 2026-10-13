@@ -238,6 +238,7 @@ export const deleteReplayRun = (runId) => API.delete(`/replay/runs/${runId}`);
 export const listBenchmarks = () => API.get("/benchmarks/");
 export const createBenchmark = (config) => API.post("/benchmarks/", config);
 export const getBenchmark = (id) => API.get(`/benchmarks/${id}`);
+export const getBenchmarkEvidence = (id) => API.get(`/benchmarks/${id}/export/json`);
 export const benchmarkExportUrl = (id, format) => `${API.defaults.baseURL}/benchmarks/${id}/export/${format}`;
 
 export const getChallengeCatalog = () => API.get("/challenges/catalog");

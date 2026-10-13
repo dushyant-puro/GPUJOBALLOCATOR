@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FlaskConical, Download, CheckCircle2, Layers, ArrowRight } from "lucide-react";
 import { getReplayPresets, listBenchmarks, createBenchmark, getBenchmark, benchmarkExportUrl } from "../services/api";
+import FairnessTradeoff from "./FairnessTradeoff";
 import "./ReplayLab.css";
 import "./BenchmarkLab.css";
 
@@ -13,6 +14,8 @@ const metrics = {
   makespan_seconds: { label: "Makespan", unit: "s", lower: true },
   p95_wait_seconds: { label: "P95 waiting", unit: "s", lower: true },
   throughput_per_minute: { label: "Throughput", unit: "jobs/min", lower: false },
+  memory_utilization_percent: { label: "Memory utilization", unit: "%", lower: false },
+  mean_wait_seconds: { label: "Mean waiting", unit: "s", lower: true },
   compute_utilization_percent: { label: "Compute utilization", unit: "%", lower: false },
   starvation_rate_percent: { label: "Starvation rate", unit: "%", lower: true },
 };
@@ -52,6 +55,8 @@ function BenchmarkLab() {
   const [metric, setMetric] = useState("makespan_seconds");
   const generation = useRef(0);
   const launching = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; generation.current += 1; }; }, []);
 
   useEffect(() => {
     let alive = true;
@@ -113,11 +118,13 @@ function BenchmarkLab() {
       };
       if (custom) payload.jobs = JSON.parse(traceText);
       const response = await createBenchmark(payload);
+      if (!mounted.current) return;
       setStudy(response.data);
       setStudyId(response.data.id);
-      setStudies((await listBenchmarks()).data.benchmarks);
-    } catch (err) { setError(errorText(err)); }
-    finally { launching.current = false; setBusy(false); }
+      const inventory = await listBenchmarks();
+      if (mounted.current) setStudies(inventory.data.benchmarks);
+    } catch (err) { if (mounted.current) setError(errorText(err)); }
+    finally { launching.current = false; if (mounted.current) setBusy(false); }
   };
 
   const reuseSettings = () => {
@@ -139,6 +146,7 @@ function BenchmarkLab() {
   const maximum = Math.max(1, ...rows.map((row) => row.metrics[metric].mean || 0));
   const completedRows = rows.filter((row) => row.complete_trials === row.trials);
   const fastest = [...completedRows].sort((a, b) => a.metrics.makespan_seconds.mean - b.metrics.makespan_seconds.mean)[0];
+  const leaders = completedRows.filter((row) => row.metrics.makespan_seconds.mean === fastest?.metrics.makespan_seconds.mean);
   const progress = study?.progress;
   const active = study && ["QUEUED", "RUNNING"].includes(study.status);
 
@@ -165,7 +173,7 @@ function BenchmarkLab() {
     {!study && <div className="replay-empty"><FlaskConical size={34} /><h3>Turn scheduling claims into measurable results.</h3><p>Run a paired comparison, inspect the trade-offs, and export the complete experiment.</p></div>}
     {summary && <>
       <div className="arena-result-title"><div><CheckCircle2 size={18} /><h3>Comparison complete</h3><span>{summary.trial_count} trials · {summary.distinct_workloads} distinct workloads</span></div><div className="arena-downloads"><a href={benchmarkExportUrl(study.id, "csv")} download><Download size={14} />CSV metrics</a><a href={benchmarkExportUrl(study.id, "json")} download><Download size={14} />JSON evidence</a></div></div>
-      <div className="arena-scorecards"><div><span>Fastest complete mean makespan</span><strong>{fastest ? display(fastest.metrics.makespan_seconds.mean) + " s" : "No complete policy"}</strong><small>{fastest ? policyLabel(fastest.policy) : "Increase timeout or inspect infeasible jobs"}</small></div><div><span>Baseline</span><strong>{policyLabel((summary.baseline_variant || summary.config.baseline))}</strong><small>Every difference uses paired traces</small></div><div><span>Evidence integrity</span><strong>{summary.distinct_workloads >= 2 ? "Paired intervals" : "One distinct trace"}</strong><small>{summary.distinct_workloads >= 2 ? "Exploratory 95% bootstrap intervals" : "Confidence intervals unavailable"}</small></div></div>
+      <div className="arena-scorecards"><div><span>Fastest complete mean makespan</span><strong>{fastest ? display(fastest.metrics.makespan_seconds.mean) + " s" : "No complete policy"}</strong><small>{leaders.length > 1 ? `Tie: ${leaders.map((row) => policyLabel(row.policy)).join(" · ")}` : fastest ? policyLabel(fastest.policy) : "Increase timeout or inspect infeasible jobs"}</small></div><div><span>Baseline</span><strong>{policyLabel((summary.baseline_variant || summary.config.baseline))}</strong><small>Every difference uses paired traces</small></div><div><span>Evidence integrity</span><strong>{summary.distinct_workloads >= 2 ? "Paired intervals" : "One distinct trace"}</strong><small>{summary.distinct_workloads >= 2 ? "Exploratory 95% bootstrap intervals" : "Confidence intervals unavailable"}</small></div></div>
       <div className="arena-chart-panel"><div><h3>Compare outcomes</h3><label>Metric<select value={metric} onChange={(event) => setMetric(event.target.value)}>{Object.entries(metrics).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}</select></label></div><p>{selection.lower ? "Lower" : "Higher"} values are better for this metric. Bars show means across distinct workloads.</p><svg className="arena-chart" viewBox={`0 0 700 ${rows.length * 50 + 20}`} role="img" aria-label={`${selection.label} comparison by policy`}>
         {rows.map((row, index) => <g key={row.policy}><text x="0" y={index * 50 + 27}>{policyLabel(row.policy)}</text><rect x="190" y={index * 50 + 10} width="390" height="26" rx="5" className="arena-bar-track" /><rect x="190" y={index * 50 + 10} width={row.metrics[metric].mean == null ? 0 : Math.max(0, row.metrics[metric].mean / maximum * 390)} height="26" rx="5" className={row.policy === (summary.baseline_variant || summary.config.baseline) ? "arena-bar-baseline" : "arena-bar-policy"} /><text x="598" y={index * 50 + 27}>{display(row.metrics[metric].mean)} {selection.unit}</text></g>)}
       </svg></div>
@@ -175,6 +183,7 @@ function BenchmarkLab() {
         const favorable = delta.mean != null && (selection.lower ? delta.mean < 0 : delta.mean > 0);
         return <div key={row.policy}><strong>{policyLabel(row.policy)}</strong><span className={favorable ? "favorable" : ""}>{delta.mean == null ? "—" : `${delta.mean > 0 ? "+" : ""}${display(delta.mean)} ${selection.unit}`}</span><small>{delta.bootstrap_95_interval ? `95% interval [${display(delta.bootstrap_95_interval[0])}, ${display(delta.bootstrap_95_interval[1])}]` : "Interval unavailable"} · {delta.pairs} paired workloads</small></div>;
       })}</div>
+      <FairnessTradeoff study={study} />
       <div className="arena-notes"><h3>Interpretation and limits</h3>{summary.warnings.map((warning) => <p key={warning}>{warning}</p>)}</div>
       <details className="arena-provenance"><summary>Reproduction details and metric definitions</summary><p>Engine: {summary.engine_version} · source SHA-256: <code>{summary.source_fingerprint}</code></p><p>Seeds: {summary.config.seeds.join(", ")} · timeout: {summary.config.horizon_seconds}s · starvation threshold: {summary.config.starvation_threshold_seconds}s</p><p>Placement rules used: {(summary.config.placement_rules || ["NORMALIZED"]).join(", ")}. Preemption recovery cost is currently zero.</p>{Object.entries(summary.metric_definitions).map(([key, value]) => <p key={key}><strong>{key.replaceAll("_", " ")}</strong> — {value}</p>)}</details>
     </>}

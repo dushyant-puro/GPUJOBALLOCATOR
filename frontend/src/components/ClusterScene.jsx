@@ -21,7 +21,8 @@ function ClusterScene({ scene, live, onInspect }) {
   const id = useId().replaceAll(":", "");
   const gpus = Object.entries(scene.resources.gpus);
   const gpu = scene.resources.gpus[selected] || gpus[0][1];
-  const owner = scene.jobs.find((job) => job.gpu_id === selected && job.status === "RUNNING");
+  const owners = scene.jobs.filter((job) => job.gpu_id === selected && job.status === "RUNNING");
+  const owner = owners[0];
   const running = scene.jobs.filter((job) => job.status === "RUNNING").length;
 
   return <div className={`cluster-figure ${motion ? "" : "motion-paused"}`}>
@@ -72,11 +73,11 @@ function ClusterScene({ scene, live, onInspect }) {
         })}
         <g transform="translate(333 468)"><path d="M0 0 27 -14 54 0 27 14Z" fill="#d1dfb5" stroke="#78935c" /><path d="M0 0v7l27 14 27 -14V0L27 14Z" fill="#a8bd86" stroke="#78935c" /><text x="27" y="40" textAnchor="middle" fill="#69755f" fontSize="10" fontFamily="monospace">WORKLOAD IN</text></g>
       </svg>
-      {gpus.map(([gpuId, item], index) => <button key={gpuId} type="button" aria-label={`Inspect ${gpuId} in cluster graphic`} aria-pressed={selected === gpuId} onClick={() => setSelected(gpuId)} className={`cluster-machine-label machine-${index} ${selected === gpuId ? "selected" : ""}`}><span>{gpuId}</span><small>{item.total.compute_units - item.available.compute_units}/{item.total.compute_units} compute <ArrowUpRight size={12} /></small></button>)}
-      <div className="cluster-scale">3 NODES / SIMULATED CAPACITIES</div>
+      {gpus.map(([gpuId, item], index) => <button key={gpuId} type="button" aria-label={`Inspect ${gpuId} in cluster graphic`} aria-pressed={selected === gpuId} onClick={() => setSelected(gpuId)} className={`cluster-machine-label machine-${index} ${selected === gpuId ? "selected" : ""}`}><span>{gpuId}</span><small>{item.total.compute_units - item.available.compute_units}/{item.total.compute_units} compute <ArrowUpRight size={12} /></small><small>{item.total.memory - item.available.memory}/{item.total.memory} memory</small></button>)}
+      <div className="cluster-scale">{gpus.length} NODES / SIMULATED CAPACITIES</div>
       <button type="button" className="cluster-motion" onClick={() => setMotion(!motion)} aria-label={motion ? "Pause graphic animation" : "Resume graphic animation"}>{motion ? <Pause size={13} /> : <Play size={13} />}</button>
     </div>
-    <div className="cluster-readout" aria-live="polite"><div><span>{selected} / {owner ? "ALLOCATED" : "AVAILABLE"}</span><strong>{owner?.name || "Ready for a workload"}</strong></div><div className="cluster-readout-memory"><span>MEMORY</span><strong>{gpu.total.memory - gpu.available.memory}<small> / {gpu.total.memory}</small></strong></div>{owner && <button type="button" onClick={() => onInspect(owner.job_id)} aria-label={`Inspect allocation for ${owner.name}`}>Inspect <ArrowUpRight size={14} /></button>}</div>
+    <div className="cluster-readout" aria-live="polite"><div><span>{selected} / {owner ? "ALLOCATED" : "AVAILABLE"}</span><strong>{owners.map((job) => job.name).join(", ") || "Ready for a workload"}</strong></div><div className="cluster-readout-memory"><span>COMPUTE</span><strong>{gpu.total.compute_units - gpu.available.compute_units}<small> / {gpu.total.compute_units}</small></strong></div><div className="cluster-readout-memory"><span>MEMORY</span><strong>{gpu.total.memory - gpu.available.memory}<small> / {gpu.total.memory}</small></strong></div>{owner && <button type="button" onClick={() => onInspect(owner.job_id)} aria-label={`Inspect allocation for ${owner.name}`}>Inspect <ArrowUpRight size={14} /></button>}</div>
     <div className="cluster-caption"><span>Illustrated hardware · actual replay state</span><span>{running} running / {scene.metrics.waiting} waiting</span></div>
   </div>;
 }
